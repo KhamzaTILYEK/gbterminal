@@ -209,8 +209,8 @@ const HomeOne = ({ navigation, props }) => {
           <>
             <View style={{ backgroundColor: "#1e2e34", flexDirection: "row", alignItems: "center", justifyContent: "space-between", }}>
               <View style={{ paddingLeft: 20, marginVertical: 10 }}>
-                <TouchableOpacity>
-                  <HistoryIcon onPress={() => navigation.navigate('HistoryScreen')} width={30} height={30} fill="#fff" />
+                <TouchableOpacity onPress={() => navigation.navigate('HistoryScreen')}>
+                  <HistoryIcon  width={30} height={30} fill="#fff" />
                 </TouchableOpacity>
               </View>
               <Text style={{ color: "#FFF", fontWeight: 400, fontSize: 26, }}>GreenBonus</Text>
@@ -263,12 +263,18 @@ const HomeOne = ({ navigation, props }) => {
                         <TouchableOpacity style={styles.choiceBtnLefta} onPress={() => { getBonus() }}>
                           <Text style={styles.choiceBtnTexta}>{tr.pay}</Text>
                         </TouchableOpacity>
+                        <View style={styles.orPositionO}>
+                          <View style={styles.orPosition}>
+                            <View style={styles.choiceBtnOrCont}>
+                              <Text style={styles.choiceBtnOrText}>{tr.or}</Text>
+                            </View>
+                          </View>
+                        </View>
+                        
                         <TouchableOpacity style={styles.choiceBtnRighta} onPress={() => { addBonus() }}>
                           <Text style={[styles.choiceBtnTexta, styles.choiceBtnRightTexta]}>{tr.add_bonus}</Text>
                         </TouchableOpacity>
-                        <View style={styles.orPosition}>
-                          <View style={styles.choiceBtnOrCont}><Text style={styles.choiceBtnOrText}>{tr.or}</Text></View>
-                        </View>
+                        
                       </View>
                     </>
                     :
@@ -286,14 +292,15 @@ const HomeOne = ({ navigation, props }) => {
                         <View style={styles.choiceBtnLeft}>
                           <Text style={styles.choiceBtnText}>{tr.pay}</Text>
                         </View>
-                        <View style={styles.choiceBtnRight}>
-                          <Text style={[styles.choiceBtnText]}>{tr.add_bonus}</Text>
-                        </View>
                         <View style={styles.orPosition}>
                           <View style={styles.choiceBtnOrCont}>
                             <Text style={styles.choiceBtnOrText}>{tr.or}</Text>
                           </View>
                         </View>
+                        <View style={styles.choiceBtnRight}>
+                          <Text style={[styles.choiceBtnText]}>{tr.add_bonus}</Text>
+                        </View>
+                       
                       </View>
                     </>
                   }
@@ -487,6 +494,7 @@ const styles = StyleSheet.create({
     borderWidth: 5,
     borderColor: 'transparent',
     borderLeftWidth: 1,
+    zIndex:-1
   },
   choiceBtnText: {
     fontFamily: 'SFUIText-Regular',
@@ -507,6 +515,13 @@ const styles = StyleSheet.create({
   orPosition: {
     position: 'absolute',
     width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex:1
+  },
+  orPositionO: {
+    width: 0,
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
