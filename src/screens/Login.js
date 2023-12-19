@@ -48,8 +48,8 @@ const tr = {
   email: 'Электронная почта'
 }
 const App = () => {
-  const [login, setLogin] = useState('donermaster')
-  const [password, setPassword] = useState('donermasteradmin')
+  const [login, setLogin] = useState('')
+  const [password, setPassword] = useState('')
   const [waiting, setWaiting] = useState(false)
   const [showToast, setShowToast] = useState(false)
   const [typeTost, setTypeToast] = useState('')
@@ -121,9 +121,9 @@ const App = () => {
                     placeholder={tr.password}
                     placeholderTextColor={'#a8afb1'}
                     style={styles.textInputStyle}
-                    autoCompleteType={"password"}
                     onChangeText={password => setPassword(password)}
                     secureTextEntry
+                    autoCapitalize="none"
                     textContentType={'password'}
                   />
                 </View>
