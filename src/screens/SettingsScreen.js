@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import {
-    SafeAreaView,
     StyleSheet,
     ScrollView,
     View,
     Text,
     TouchableOpacity, 
 } from 'react-native';
-
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { BackIcon } from "../assets/svg_icons/icons.js"
 import axios from 'axios';
 import { RU, EN } from './flags.js';
@@ -70,7 +69,7 @@ export default function SettingsScreen({ navigation }) {
             })
     }, [])
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: "#1e2e34" }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: "#1e2e34" }} edges={['top']}>
             <View style={{ backgroundColor: "#1e2e34", flexDirection: "row", alignItems: "center", justifyContent: "space-between", }}>
                 <View style={{ paddingLeft: 20, marginVertical: 10 }}>
                     <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')} style={{}}>

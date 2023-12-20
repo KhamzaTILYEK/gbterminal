@@ -83,9 +83,9 @@ android {
     }
     signingConfigs {
        debug {
-            storeFile file('keystore.uu')
-            storePassword 'android'
-            keyAlias '123456qwe'
+            storeFile file('android.keystore')
+            storePassword '123456qwe'
+            keyAlias 'android'
             keyPassword 'android'
         }
     }

@@ -6,7 +6,7 @@ export default function Toast({ show, message, type, w ,setShowToast}) {
         <>
             {show? <View style={{
                 position: 'absolute',
-                marginTop: 60,
+                marginTop: 50,
                 zIndex: 20,
                 right: "10%",
                 width: w ? w : "80%",
