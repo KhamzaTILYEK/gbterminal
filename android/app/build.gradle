@@ -73,13 +73,13 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.greenbonus"
+    namespace "halalgude.android.shop"
     defaultConfig {
-        applicationId "com.greenbonus"
+        applicationId "halalgude.android.shop"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.1"
+        versionCode 33
+        versionName "GreenBonus"
     }
     signingConfigs {
        debug {
