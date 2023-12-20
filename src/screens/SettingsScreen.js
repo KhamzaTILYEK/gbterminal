@@ -5,8 +5,7 @@ import {
     ScrollView,
     View,
     Text,
-    StatusBar,
-    TouchableOpacity, Dimensions,
+    TouchableOpacity, 
 } from 'react-native';
 
 import { BackIcon } from "../assets/svg_icons/icons.js"
@@ -71,11 +70,11 @@ export default function SettingsScreen({ navigation }) {
             })
     }, [])
     return (
-        <SafeAreaView>
+        <SafeAreaView style={{ flex: 1, backgroundColor: "#1e2e34" }}>
             <View style={{ backgroundColor: "#1e2e34", flexDirection: "row", alignItems: "center", justifyContent: "space-between", }}>
                 <View style={{ paddingLeft: 20, marginVertical: 10 }}>
-                    <TouchableOpacity style={{ width: 20 }}>
-                        <BackIcon onPress={() => navigation.navigate('HomeScreen')} width={30} height={30} fill="#1e2e34" color="#fff" />
+                    <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')} style={{}}>
+                        <BackIcon  width={30} height={30} fill="#1e2e34" color="#fff" />
                     </TouchableOpacity>
                 </View>
                 <Text style={{ color: "#FFF", fontWeight: 400, fontSize: 26, }}>{tr?.settings}</Text>

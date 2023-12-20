@@ -5,7 +5,6 @@ import {
   ScrollView,
   View,
   Text,
-  StatusBar, Alert,
   TextInput,
   TouchableOpacity, KeyboardAvoidingView
 } from 'react-native'
@@ -15,11 +14,9 @@ import {
   LogoSvg,
   LogoBg,
 } from '../assets/svg_icons/icons';
-
 import { useDispatch } from 'react-redux'
 import axios from 'axios'
 import { SafeAreaView } from 'react-native-safe-area-context'
-
 import { Login } from '../store/actions'
 import Toast from '../components/Toast'
 
@@ -60,14 +57,13 @@ const App = () => {
     const timeId = setTimeout(() => {
       setShowToast(false)
     }, 5000)
-
     return () => {
       clearTimeout(timeId)
     }
   }, [showToast])
-
   const onSubmit = () => {
-    setWaiting(true)
+    if(login && password){
+      setWaiting(true)
     axios
       .post('https://data.halalguide.me/api/office/auth/login/', { login: login, password: password })
       .then(response => {
@@ -78,16 +74,20 @@ const App = () => {
       .catch(error => {
         console.log(error)
         setTypeToast('warning')
-        setMessageToast('Некорректные учетные данные.')
+        setMessageToast('Некорректные учетные данные')
         setShowToast(true)
         setWaiting(false)
       })
+    }else{
+      setTypeToast('warning')
+      setMessageToast('Введите учетные данные')
+      setShowToast(true)
+    }
   }
 
   return (
     <Fragment>
-      <Toast type={typeTost} show={showToast} message={messageToast} />
-      <StatusBar backgroundColor="#1e2e34" barStyle="light-content" />
+      <Toast type={typeTost} show={showToast} message={messageToast}  setShowToast={setShowToast}/>
       <SafeAreaView style={{ flex: 1, backgroundColor: "#1e2e34" }}>
         <ScrollView bounces={false}
           contentInsetAdjustmentBehavior="automatic"
@@ -99,7 +99,6 @@ const App = () => {
                   style={{ position: 'absolute', top: 0 }} fill={'#1e2e34'} />
                 <LogoSvg width={'60%'} height={'100%'} />
               </View>
-
               <View style={styles.inputBlock}>
                 <Text style={styles.inputTitle}>{tr.signin}</Text>
                 <View style={styles.inputStringCont}>
@@ -129,7 +128,7 @@ const App = () => {
                 </View>
                 {waiting ?
                   <ActivityIndicator size="small" style={{ marginTop: 27 }} /> :
-                  <TouchableOpacity style={styles.buttonCont}
+                  <TouchableOpacity  style={styles.buttonCont}
                     onPress={() => onSubmit(login, password, waiting, setWaiting)}>
                     <Text style={styles.buttonText}>{tr.login}</Text>
                   </TouchableOpacity>}
@@ -141,8 +140,6 @@ const App = () => {
     </Fragment>
   );
 };
-
-
 
 const styles = StyleSheet.create({
   scrollView: {

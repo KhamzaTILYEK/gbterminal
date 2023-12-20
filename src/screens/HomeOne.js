@@ -5,9 +5,8 @@ import {
   ScrollView,
   View,
   Text,
-  StatusBar,
   TextInput,
-  TouchableOpacity, Dimensions
+  TouchableOpacity, Dimensions, KeyboardAvoidingView
 } from 'react-native';
 import { useCodeScanner, useCameraPermission, Camera, useCameraDevice } from 'react-native-vision-camera';
 import { LogoQROff } from '../assets/svg_icons/qr_off_icon.js';
@@ -52,7 +51,7 @@ const HomeOne = ({ navigation, props }) => {
   const token = useSelector(state => state.Reducers.authToken);
   const [userId, setUserId] = useState()
   const [userName, setUserName] = useState()
-  const [amount, setAmount] = useState(0)
+  const [amount, setAmount] = useState()
   const [isLoading, setIsLoading] = useState(false)
   const [scanning, setScanning] = useState(false)
   const [showToast, setShowToast] = useState(false)
@@ -63,7 +62,7 @@ const HomeOne = ({ navigation, props }) => {
   useEffect(() => {
     const timeId = setTimeout(() => {
       setShowToast(false)
-    }, 5000)
+    }, 4000)
 
     return () => {
       clearTimeout(timeId)
@@ -74,45 +73,45 @@ const HomeOne = ({ navigation, props }) => {
     if (hasPermission == false) {
       requestPermission()
     }
-    console.log(hasPermission);
   }, [])
 
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13'],
 
     onCodeScanned: (codes) => {
-      setIsLoading(true)
+      
       if (JSON.parse(codes[0].value).name) {
         setUserName(`${JSON.parse(codes[0].value).name} ${JSON.parse(codes[0].value).surname}`)
         setUserId(JSON.parse(codes[0].value).id)
-        setIsLoading(false)
-      } else {
-        setUserName(codes[0].value)
-        console.log("dsfsfsdfsdf");
+        setScanning(false)
+      } 
+      if(codes[0].value){
+        if (codes[0].value.length<7){
+          setIsLoading(true)
         axios.get(`https://data.halalguide.me/api/user/${codes[0].value}`, {
           headers: {
             Authorization: token
           }
         })
-          .then(response => {
-            setUserName(response.data.name)
-            setUserId(response.data.id)
-            console.log(response.data.id);
-            setIsLoading(false)
-            // setTypeToast('done')
-            // setMessageToast('coneccted to test QR')
-            // setShowToast(true)
-          }).catch(error => {
-            console.log(error);
-            setIsLoading(false)
-            setTypeToast('error')
-            setMessageToast(`Ошибка`)
-            setShowToast(true)
-          })
+        .then(response => {
+          setUserName(response.data.name)
+          setUserId(response.data.id)
+          setIsLoading(false)
+          setScanning(false)
+        }).catch(error => {
+          setIsLoading(false)
+          setTypeToast('error')
+          setMessageToast(`Ошибка`)
+          setShowToast(true)
+          setScanning(false)
+        })
+      }else{
+        setTypeToast('warning')
+        setMessageToast(`cant read this qr`)
+        setShowToast(true)
       }
-
-      setScanning(false)
-
+      }
+      setIsLoading(false)
     }
   })
 
@@ -125,12 +124,14 @@ const HomeOne = ({ navigation, props }) => {
         setShowToast(true)
         setIsLoading(false)
         setUserName()
+        setAmount()
       }).catch(error => {
         setTypeToast('error')
         setMessageToast(`Бонусы не списаны`)
         setShowToast(true)
         setUserName()
         setIsLoading(false)
+        setAmount()
       })
   }
   const getBonus = () => {
@@ -139,14 +140,15 @@ const HomeOne = ({ navigation, props }) => {
       .then(response => {
         setIsLoading(false)
         setTypeToast('done')
-        setMessageToast(`debit Бонусы списаны`)
+        setMessageToast(`Бонусы списаны`)
         setShowToast(true)
         setUserName()
+        setAmount()
       }).catch(error => {
         console.log("error: ", error);
         setIsLoading(false)
         setTypeToast('error')
-        setMessageToast(`debit Бонусы не списаны`)
+        setMessageToast(`Бонусы не списаны`)
         setShowToast(true)
         setUserName()
       })
@@ -157,56 +159,58 @@ const HomeOne = ({ navigation, props }) => {
 
   const iconSize = 1.5
   return (
-    <Fragment>
-      <Toast type={typeTost} show={showToast} message={messageToast} />
-      <StatusBar backgroundColor="#1e2e34" barStyle="light-content" />
-      <SafeAreaView style={{ flex: 1 }}>
-        {scanning ?
-          <>
-            <View style={{ flexDirection: "column", alignItems: "center" }}>
-              <Camera
-                style={{ width: "100%", height: "100%" }}
-                device={device}
+<Fragment>
+      <Toast type={typeTost} show={showToast} message={messageToast}  setShowToast={setShowToast}/>
+      {scanning?
+      <View style={{ flexDirection: "column", alignItems: "center",width:"100%" }}>
+      <Camera
+        style={{ width: "100%", height: "100%" }}
+        device={device}
+        isActive={true}
+        {...props} codeScanner={codeScanner}
+      >
+      </Camera>
+      <View style={{ position: "absolute", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "space-around" }}>
+        {/* Logo */}
+        <View style={{ borderRadius: 10 * iconSize, borderWidth: 2 * iconSize, borderColor: "#fff", padding: 4 * iconSize, flexDirection: "column" }}>
+          <View style={{ borderColor: "#fff", borderBottomWidth: 2 * iconSize, flexDirection: "row", }}>
+            <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginBottom: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
+            <View style={{ borderWidth: iconSize, borderColor: "#fff", marginHorizontal: 2 * iconSize }}></View>
+            <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginBottom: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
+          </View>
+          <View style={{ flexDirection: "row", }}>
+            <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginTop: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
+            <View style={{ borderWidth: iconSize, borderColor: "#fff", marginHorizontal: 2 * iconSize }}></View>
+            <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginTop: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
+          </View>
+        </View>
+        {/* Text1 */}
+        <Text style={{ textAlign: "center", color: "#fff", fontSize: 26, fontWeight: 600, paddingHorizontal: 20 }}>
+          {tr.place_qr_code}
+        </Text>
+        {/* Box */}
+        <View style={{ borderWidth: 2, borderColor: "#ffeb3b", borderRadius: 20, width: "100%", height: windowWidth - 30 }}></View>
+        {/* Text2 */}
+        <Text style={{ textAlign: "center", color: "#fff", fontSize: 18, fontWeight: 500 }}>
+          {tr.place_qr_code2}
+        </Text>
+        {/* Button  */}
+        <View style={{ height: 42, width: "100%" }}>
+          <TouchableOpacity onPress={() => quit()} style={{ width: "100%", borderRadius: 15, borderWidth: 2, borderColor: "#fff", flex: 1, alignItems: "center", padding: 5, backgroundColor: "#ffffff33" }}>
+            <Text style={{ color: "#fff", fontWeight: 500, fontSize: 18, }}>{tr.cancel}</Text>
+          </TouchableOpacity>
 
-                isActive={true}
-                {...props} codeScanner={codeScanner}
-              >
-              </Camera>
-              <View style={{ position: "absolute", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "space-around" }}>
-                {/* Logo */}
-                <View style={{ borderRadius: 10 * iconSize, borderWidth: 2 * iconSize, borderColor: "#fff", padding: 4 * iconSize, flexDirection: "column" }}>
-                  <View style={{ borderColor: "#fff", borderBottomWidth: 2 * iconSize, flexDirection: "row", }}>
-                    <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginBottom: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
-                    <View style={{ borderWidth: iconSize, borderColor: "#fff", marginHorizontal: 2 * iconSize }}></View>
-                    <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginBottom: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
-                  </View>
-                  <View style={{ flexDirection: "row", }}>
-                    <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginTop: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
-                    <View style={{ borderWidth: iconSize, borderColor: "#fff", marginHorizontal: 2 * iconSize }}></View>
-                    <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginTop: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
-                  </View>
-                </View>
-                {/* Text1 */}
-                <Text style={{ textAlign: "center", color: "#fff", fontSize: 26, fontWeight: 600, paddingHorizontal: 20 }}>
-                  {tr.place_qr_code}
-                </Text>
-                {/* Box */}
-                <View style={{ borderWidth: 2, borderColor: "#ffeb3b", borderRadius: 20, width: "100%", height: windowWidth - 30 }}></View>
-                {/* Text2 */}
-                <Text style={{ textAlign: "center", color: "#fff", fontSize: 18, fontWeight: 500 }}>
-                  {tr.place_qr_code2}
-                </Text>
-                {/* Button  */}
-                <View style={{ height: 42, width: "100%" }}>
-                  <TouchableOpacity onPress={() => quit()} style={{ width: "100%", borderRadius: 15, borderWidth: 2, borderColor: "#fff", flex: 1, alignItems: "center", padding: 5, backgroundColor: "#ffffff33" }}>
-                    <Text style={{ color: "#fff", fontWeight: 500, fontSize: 18, }}>{tr.cancel}</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          </>
-          :
-          <>
+        </View>
+      </View>
+    </View>
+      :<SafeAreaView style={{ flex: 1, backgroundColor: "#1e2e34" }}>
+        <ScrollView bounces={false}
+          contentInsetAdjustmentBehavior="automatic"
+          contentContainerStyle={styles.scrollView}>
+          <KeyboardAvoidingView behavior={Platform.OS == 'ios' ? "position" : null}>
+            <View style={styles.body}>
+           
+          <View style={{marginTop:0 ,height:"100%"}}>
             <View style={{ backgroundColor: "#1e2e34", flexDirection: "row", alignItems: "center", justifyContent: "space-between", }}>
               <View style={{ paddingLeft: 20, marginVertical: 10 }}>
                 <TouchableOpacity onPress={() => navigation.navigate('HistoryScreen')}>
@@ -218,13 +222,9 @@ const HomeOne = ({ navigation, props }) => {
                 <TouchableOpacity onPress={() => navigation.navigate('SettingsScreen')}>
                   <SettingsIcon width={30} height={30} fill="#fff" />
                 </TouchableOpacity>
-
               </View>
             </View>
-            <ScrollView
-              contentInsetAdjustmentBehavior="automatic"
-              contentContainerStyle={styles.scrollView}>
-              <View style={styles.body}>
+            <View style={styles.body}>
                 <View style={styles.logoCont}>
                   {userName ?
                     <>
@@ -270,11 +270,9 @@ const HomeOne = ({ navigation, props }) => {
                             </View>
                           </View>
                         </View>
-                        
                         <TouchableOpacity style={styles.choiceBtnRighta} onPress={() => { addBonus() }}>
                           <Text style={[styles.choiceBtnTexta, styles.choiceBtnRightTexta]}>{tr.add_bonus}</Text>
                         </TouchableOpacity>
-                        
                       </View>
                     </>
                     :
@@ -286,6 +284,7 @@ const HomeOne = ({ navigation, props }) => {
                         style={styles.inputTaxValue}
                         placeholder={tr.total_price + '(GB)'}
                         placeholderColor={'#bbbbbb'}
+                        defaultValue={amount}
                       />
                       <Text style={styles.instructionText}><Text style={styles.attentionText}>{tr.warning}</Text> {tr.instruction}</Text>
                       <View style={styles.choiceBtnCont}>
@@ -300,23 +299,24 @@ const HomeOne = ({ navigation, props }) => {
                         <View style={styles.choiceBtnRight}>
                           <Text style={[styles.choiceBtnText]}>{tr.add_bonus}</Text>
                         </View>
-                       
                       </View>
                     </>
                   }
                 </View>
               </View>
-            </ScrollView>
-          </>
-        }
+          </View>
+      
+            </View>
+          </KeyboardAvoidingView>
+        </ScrollView>
         {isLoading && <View style={{ flex: 1, justifyContent: 'center', position: "absolute", width: "100%", height: "100%", backgroundColor: "#00000099" }}>
           <ActivityIndicator size="large" color="#35a83a" />
         </View>}
-      </SafeAreaView>
-    </Fragment >
+      </SafeAreaView>}
+      
+    </Fragment>
   );
 }
-
 const styles = StyleSheet.create({
   exitImg: {
     height: 20,
@@ -352,17 +352,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   body: {
-    marginTop: -54,
     flexGrow: 1,
     backgroundColor: '#eeeded',
     alignItems: 'center',
-  },
-  userTitleText: {
-
-    marginTop: '20%',
-    fontFamily: 'SFUIDisplay-Light',
-    fontSize: 29,
-    color: '#2e2e2e'
   },
   userNameCont: {
     paddingHorizontal: 10,

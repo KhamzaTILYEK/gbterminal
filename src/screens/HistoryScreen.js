@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState,Fragment } from 'react'
 import {
     SafeAreaView,
     StyleSheet,
@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { PlusIcon, MinusIcon, BackIcon } from "../assets/svg_icons/icons.js"
 import axios from 'axios';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector} from 'react-redux';
 import { ActivityIndicator } from 'react-native-paper';
 const tr = {
     signin: 'Вход',
@@ -37,8 +37,6 @@ const tr = {
     quit: "Выйти",
     email: 'Электронная почта',
     history: 'История'
-
-
 }
 
 export default function HistoryScreen({ navigation }) {
@@ -46,7 +44,6 @@ export default function HistoryScreen({ navigation }) {
     const [history, setHistory] = useState()
     const [isLoading, setIsLoading] = useState(true)
     useEffect(() => {
-
         axios.get(`https://data.halalguide.me/api/bonus/points/`, {
             headers: {
                 Authorization: token
@@ -61,43 +58,46 @@ export default function HistoryScreen({ navigation }) {
             })
     }, [])
     return (
-        <SafeAreaView>
-            <View style={{ backgroundColor: "#1e2e34", flexDirection: "row", alignItems: "center", justifyContent: "space-between", }}>
-                <View style={{ paddingLeft: 20, marginVertical: 10 }}>
-                    <TouchableOpacity style={{ width: 20 }}>
-                        <BackIcon onPress={() => navigation.navigate('HomeScreen')} width={30} height={30} fill="#1e2e34" color="#fff" />
-                    </TouchableOpacity>
-                </View>
-                <Text style={{ color: "#FFF", fontWeight: 400, fontSize: 26, }}>{tr?.history}</Text>
-                <View style={{ paddingRight: 20 }}>
+    <Fragment>
+       <StatusBar backgroundColor="#1e2e34" barStyle="light-content" />
+       <SafeAreaView style={{ flex: 1, backgroundColor: "#1e2e34" }}>
+       <View style={{ backgroundColor: "#1e2e34", flexDirection: "row", alignItems: "center", justifyContent: "space-between", }}>
+           <View style={{ paddingLeft: 20, marginVertical: 10 }}>
+               <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')} style={{ paddingRight:5 }}>
+                   <BackIcon  width={30} height={30} fill="#1e2e34" color="#fff" />
+               </TouchableOpacity>
+           </View>
+           <Text style={{ color: "#FFF", fontWeight: 400, fontSize: 26, }}>{tr?.history}</Text>
+           <View style={{ paddingRight: 20 }}>
 
-                </View>
-            </View>
-            {isLoading ? <>
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: "center", paddingTop: 50 }}>
-                    <ActivityIndicator size="large" color="#35a83a" />
-                </View>
-            </> :
-                <ScrollView
-                    contentInsetAdjustmentBehavior="automatic"
-                    contentContainerStyle={styles.scrollView}>
-                    <View>
-                        {history?.results !== 0 && history?.results.map((item, index) => {
-                            return (
-                                <View key={`history_list_${index}`} style={styles.blockCont}>
-                                    {item?.amount > 0 ? <PlusIcon width={28} height={28} /> : <MinusIcon width={28} height={28} />}
-                                    <View style={styles.textCont}>
-                                        <Text numberOfLines={1} style={styles.userNameText}>{item?.user.name}</Text>
-                                        <Text style={styles.dateText}>{(item?.date)}</Text>
-                                    </View>
-                                    <Text style={styles.sumText}>{item?.amount} GB</Text>
-                                </View>
-                            )
-                        })}
-                    </View>
-                    {history?.results !== 0 && <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", height: 500 }}><Text >Нет данных</Text></View>}
-                </ScrollView>}
-        </SafeAreaView>
+           </View>
+       </View>
+       {isLoading ? <>
+           <View style={{ flex: 1, justifyContent: 'center', alignItems: "center", paddingTop: 50 }}>
+               <ActivityIndicator size="large" color="#35a83a" />
+           </View>
+       </> :
+           <ScrollView
+               contentInsetAdjustmentBehavior="automatic"
+               contentContainerStyle={styles.scrollView}>
+               <View>
+                   {history?.results !== 0 && history?.results.map((item, index) => {
+                       return (
+                           <View key={`history_list_${index}`} style={styles.blockCont}>
+                               {item?.amount > 0 ? <PlusIcon width={28} height={28} /> : <MinusIcon width={28} height={28} />}
+                               <View style={styles.textCont}>
+                                   <Text numberOfLines={1} style={styles.userNameText}>{item?.user.name}</Text>
+                                   <Text style={styles.dateText}>{(item?.date)}</Text>
+                               </View>
+                               <Text style={styles.sumText}>{item?.amount} GB</Text>
+                           </View>
+                       )
+                   })}
+               </View>
+               {history?.results ?null: <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", height:500}}><Text >Нет данных</Text></View>}
+           </ScrollView>}
+   </SafeAreaView>
+   </Fragment>
     )
 }
 
