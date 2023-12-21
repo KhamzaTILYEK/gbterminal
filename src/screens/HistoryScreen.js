@@ -67,7 +67,7 @@ export default function HistoryScreen({ navigation }) {
                </TouchableOpacity>
            </View>
            <Text style={{ color: "#FFF", fontWeight: 400, fontSize: 26, }}>{tr?.history}</Text>
-           <View style={{ paddingRight: 20 }}>
+           <View style={{ paddingRight: 20 , width:50}}>
 
            </View>
        </View>
@@ -88,7 +88,7 @@ export default function HistoryScreen({ navigation }) {
                                    <Text numberOfLines={1} style={styles.userNameText}>{item?.user.name}</Text>
                                    <Text style={styles.dateText}>{(item?.date)}</Text>
                                </View>
-                               <Text style={styles.sumText}>{item?.amount} GB</Text>
+                               <Text style={styles.sumText}>{item?.amount} ₸</Text>
                            </View>
                        )
                    })}

@@ -92,14 +92,14 @@ export default function SettingsScreen({ navigation }) {
                             <Text>{tr.lang}</Text>
                         </View>
                         <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
-                            <TouchableOpacity onPress={() => { setLang(e = "EN") }}>
-                                <View style={{ flexDirection: "row", padding: 5, backgroundColor: "#aaa", borderRadius: 5 }}>
+                            <TouchableOpacity disabled onPress={() => { setLang(e = "EN") }}>
+                                <View style={{ flexDirection: "row", padding: 5, backgroundColor: "#fff", borderRadius: 5 }}>
                                     <EN width={50} height={25} />
                                     <Text>English</Text>
                                 </View>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => { setLang(e = "RU") }}>
-                                <View style={{ flexDirection: "row", padding: 5, backgroundColor: "#35a83a", borderRadius: 5 }}>
+                            <TouchableOpacity disabled onPress={() => { setLang(e = "RU") }}>
+                                <View style={{ flexDirection: "row", padding: 5, backgroundColor: "#fff", borderRadius: 5 }}>
                                     <RU width={50} height={25} />
                                     <Text>Русский</Text>
                                 </View>

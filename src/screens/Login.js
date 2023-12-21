@@ -42,7 +42,7 @@ const tr = {
   main: "Основное",
   lang: "Язык",
   quit: "Выйти",
-  email: 'Электронная почта'
+  email: 'Электронная почта или Логин'
 }
 const App = () => {
   const [login, setLogin] = useState('')
@@ -128,12 +128,15 @@ const App = () => {
                     textContentType={'password'}
                   />
                 </View>
-                {waiting ?
-                  <ActivityIndicator size="small" style={{ marginTop: 27 }} /> :
-                  <TouchableOpacity  style={styles.buttonCont}
+                <TouchableOpacity  style={styles.buttonCont}
                     onPress={() => onSubmit(login, password, waiting, setWaiting)}>
-                    <Text style={styles.buttonText}>{tr.login}</Text>
-                  </TouchableOpacity>}
+                   
+                    {waiting ?
+                  <ActivityIndicator size="small" style={{  }} /> :
+                  
+                    <Text style={styles.buttonText}>{tr.login}</Text>}
+                  </TouchableOpacity>
+               
               </View>
             </View>
           </KeyboardAvoidingView>

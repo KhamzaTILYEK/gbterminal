@@ -187,42 +187,45 @@ const HomeOne = ({ navigation, props }) => {
         <ScrollView bounces={false} 
           contentContainerStyle={styles.scrollView} >
           <KeyboardAvoidingView behavior={Platform.OS == 'ios' ? "position" : null}>
-              <View style={{ height:"100%", }}>
+              <View style={{height:"100%", flexDirection:"column"}}>
                 <View style={{ backgroundColor: "#1e2e34", flexDirection: "row", alignItems: "center", justifyContent: "space-between", }}>
-                  <View style={{ paddingLeft: 20, marginVertical: 10 }}>
-                    <TouchableOpacity onPress={() => navigation.navigate('HistoryScreen')}>
+                  <View style={{ paddingLeft: 10, marginVertical: 10 }}>
+                    <TouchableOpacity style={{padding:5}} onPress={() => navigation.navigate('HistoryScreen')}>
                       <HistoryIcon  width={22} height={22} fill="#fff" />
                     </TouchableOpacity>
                   </View>
                   <Text style={{ color: "#FFF", fontWeight: 400, fontSize: 26, }}>HalalBonus</Text>
-                  <View style={{ paddingRight: 20 }}>
-                    <TouchableOpacity onPress={() => navigation.navigate('SettingsScreen')}>
+                  <View style={{ paddingRight: 10 }}>
+                    <TouchableOpacity style={{padding:5}}  onPress={() => navigation.navigate('SettingsScreen')}>
                       <SettingsIcon width={22} height={22} fill="#fff" />
                     </TouchableOpacity>
                   </View>
                 </View>
+                <View style={{flex:1,backgroundColor:"#eeeded", zIndex:-1}}>
                 <View style={styles.body }>
                     <View style={styles.logoCont}>
                       {userName ?
                         <>
-                          <LogoQROn width={'100%'} height={'100%'} preserveAspectRatio="none" style={{ position: 'absolute', top: 0 }} />
+                          <LogoQROn width={'100%'} height={'100%'} preserveAspectRatio="none" style={{ position: 'absolute', }} />
                           
-                          <View style={[styles.userNameCont,{position:"absolute",bottom:"35%"}]}>
-                            <Text
-                              numberOfLines={2}
-                              style={styles.userNameText}>{userName}</Text>
-                          </View>
-                        </> :
-                        <>
-                          <LogoQROff width={'100%'} height={'100%'} preserveAspectRatio="none" style={{ position: 'absolute'}} />
-                          <Text style={styles.userTitleText}>{tr.scan_qr_code}</Text>
-                        </>
-                      }
-                      <TouchableOpacity style={styles.scanAgainButton} onPress={() =>(setUserName(), setScanning(true))}>
+                          <Text style={styles.userTitleText}>{userName}</Text>
+                          <TouchableOpacity style={styles.scanAgainButton} onPress={() =>(setAmount(), setUserName(), setScanning(true))}>
                         <Text style={styles.scanAgainBtnText}>
-                          {userName ? tr.rescan : tr.scan}
+                          { tr.rescan }
                         </Text>
                       </TouchableOpacity>
+                        </> :
+                        <>
+                          <LogoQROff width={'100%'} height={'100%'} preserveAspectRatio="none" style={{ position: 'absolute',}} />
+                          <Text style={styles.userTitleText}>{tr.scan_qr_code}</Text>
+                          <TouchableOpacity style={styles.scanAgainButton} onPress={() =>(setAmount(), setUserName(), setScanning(true))}>
+                        <Text style={styles.scanAgainBtnText}>
+                          {tr.scan}
+                        </Text>
+                      </TouchableOpacity>
+                        </>
+                      }
+                      
                     </View>
                     <View style={styles.bottomBlock}>
                       {userName ?
@@ -232,7 +235,7 @@ const HomeOne = ({ navigation, props }) => {
                             autoFocus={true}
                             keyboardType={'numeric'}
                             style={styles.inputTaxValuea}
-                            placeholder={tr.total_price + ' (GB)'}
+                            placeholder={tr.total_price + ' ₸'}
                             onChangeText={amount => setAmount(amount)}
                             placeholderColor={'#999999'}
                           />
@@ -260,7 +263,7 @@ const HomeOne = ({ navigation, props }) => {
                             editable={false}
                             keyboardType={'numeric'}
                             style={styles.inputTaxValue}
-                            placeholder={tr.total_price + '(GB)'}
+                            placeholder={tr.total_price + ' ₸'}
                             placeholderColor={'#bbbbbb'}
                             defaultValue={amount}
                           />
@@ -282,7 +285,8 @@ const HomeOne = ({ navigation, props }) => {
                       }
                     </View>
                   </View>
-              </View>
+                </View>
+             </View>
           </KeyboardAvoidingView>
         </ScrollView>
       </SafeAreaView>}
@@ -305,7 +309,6 @@ const styles = StyleSheet.create({
     marginVertical: 10
   },
   scrollView: {
-    backgroundColor:"#f72",
     height:"100%"
   },
   addOrderCostTexta: {
@@ -314,7 +317,7 @@ const styles = StyleSheet.create({
     color: '#2e2e2e'
   },
   inputTaxValuea: {
-    marginTop: 5,
+    marginTop: 10,
     width: '100%',
     height: 54,
     borderRadius: 10,
@@ -327,12 +330,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   body: {
-    flexGrow: 1,
-    backgroundColor: '#eeeded',
+    height:"100%",
     alignItems: 'center',
-    justifyContent:"space-between",
-    paddingBottom:40, 
-    zIndex:-1
+    marginTop:-50,
+    flexDirection:"column",
+    justifyContent:"space-around"
   },
   userNameCont: {
     width: '80%',
@@ -359,31 +361,33 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 0.95,
     alignItems: 'center',
+    flexDirection:"column",
+    justifyContent:"space-between",
+    paddingTop:30
   },
   userTitleText: {
     fontFamily: 'SFUIDisplay-Light',
     fontSize: 29,
     color: '#2e2e2e',
-    marginTop:30
+    marginTop:50
   },
 
   scanAgainButton: {
-    position: 'absolute',
-    bottom: '15%',
-    width: '78%',
+    width: '80%',
     height: 46,
     borderRadius: 23,
     backgroundColor: '#ffeb3b',
     elevation: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom:"25%"
   },
   scanAgainBtnText: {
     fontSize: 19,
     fontFamily: 'SFUIText-Regular',
   },
   bottomBlock: {
-    width: '78%',
+    width: '80%',
     alignItems: 'center',
     paddingVertical: 24,
   },
