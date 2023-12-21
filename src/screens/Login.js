@@ -18,7 +18,7 @@ import { useDispatch } from 'react-redux'
 import axios from 'axios'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Login } from '../store/actions'
-import Toast from '../components/Toast'
+import Toast from 'react-native-toast-message';
 
 const tr = {
   signin: 'Вход',
@@ -72,22 +72,24 @@ const App = () => {
         setWaiting(false)
       })
       .catch(error => {
-        console.log(error)
-        setTypeToast('warning')
-        setMessageToast('Некорректные учетные данные')
-        setShowToast(true)
+        Toast.show({
+          type: 'error',
+          text1: 'Некорректные учетные данные',
+        });
         setWaiting(false)
       })
     }else{
-      setTypeToast('warning')
+      Toast.show({
+        type: 'error',
+        text1: 'Введите учетные данные',
+      });
       setMessageToast('Введите учетные данные')
-      setShowToast(true)
+      
     }
   }
 
   return (
     <Fragment>
-      <Toast type={typeTost} show={showToast} message={messageToast}  setShowToast={setShowToast}/>
       <SafeAreaView style={{ flex: 1, backgroundColor: "#1e2e34" }}>
         <ScrollView bounces={false}
           contentInsetAdjustmentBehavior="automatic"

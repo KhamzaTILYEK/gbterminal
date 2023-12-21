@@ -5,7 +5,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StatusBar, View } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
-
+import Toast from 'react-native-toast-message'
 import { Init } from './src/store/actions';
 import { store } from './src/store';
 
@@ -87,6 +87,7 @@ const App = () => {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>
         <RootNavigation />
+        <Toast />
       </Provider>
     </GestureHandlerRootView>
   );

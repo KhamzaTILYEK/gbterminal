@@ -13,10 +13,9 @@ import { LogoQROff } from '../assets/svg_icons/qr_off_icon.js';
 import { LogoQROn } from '../assets/svg_icons/qr_on_icon.js';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
-import Toast from '../components/Toast.js';
 import { ActivityIndicator } from 'react-native-paper';
 import { HistoryIcon, SettingsIcon } from "../assets/svg_icons/icons.js"
-
+import Toast from 'react-native-toast-message';
 const tr = {
   signin: 'Вход',
   password: 'Пароль',
@@ -54,26 +53,13 @@ const HomeOne = ({ navigation, props }) => {
   const [amount, setAmount] = useState()
   const [isLoading, setIsLoading] = useState(false)
   const [scanning, setScanning] = useState(false)
-  const [showToast, setShowToast] = useState(false)
-  const [typeTost, setTypeToast] = useState('')
-  const [messageToast, setMessageToast] = useState('')
   const windowWidth = Dimensions.get('window').width;
-
-  useEffect(() => {
-    const timeId = setTimeout(() => {
-      setShowToast(false)
-    }, 4000)
-
-    return () => {
-      clearTimeout(timeId)
-    }
-  }, [showToast])
 
   useEffect(() => {
     if (hasPermission == false) {
       requestPermission()
     }
-  }, [])
+  }, [scanning])
 
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13'],
@@ -87,7 +73,7 @@ const HomeOne = ({ navigation, props }) => {
           setScanning(false)
         }
 
-      }else {
+      }else{
             setIsLoading(true)
             axios.get(`https://data.halalguide.me/api/user/${codes[0].value}`, {
               headers: {
@@ -110,16 +96,18 @@ const HomeOne = ({ navigation, props }) => {
     setIsLoading(true)
     axios.post(`https://data.halalguide.me/api/bonus/points/`, { user: userId, amount: amount }, { headers: { Authorization: token } })
       .then(response => {
-        setTypeToast('done')
-        setMessageToast(`Бонусы Зачислены`)
-        setShowToast(true)
+        Toast.show({
+          type: 'success',
+          text1: 'Бонусы Зачислены',
+        });
         setIsLoading(false)
         setUserName()
         setAmount()
       }).catch(error => {
-        setTypeToast('error')
-        setMessageToast(`Бонусы не Зачислены`)
-        setShowToast(true)
+        Toast.show({
+          type: 'error',
+          text1: 'Бонусы не Зачислены',
+        });
         setUserName()
         setIsLoading(false)
         setAmount()
@@ -130,18 +118,20 @@ const HomeOne = ({ navigation, props }) => {
     axios.post(`https://data.halalguide.me/api/bonus/points/debit/`, { user: userId, amount: amount }, { headers: { Authorization: token } })
       .then(response => {
         setIsLoading(false)
-        setTypeToast('done')
-        setMessageToast(`Бонусы списаны`)
-        setShowToast(true)
+        Toast.show({
+          type: 'success',
+          text1: 'Бонусы списаны',
+        });
         setUserName()
         setAmount()
       }).catch(error => {
-        console.log("error: ", error);
         setIsLoading(false)
-        setTypeToast('error')
-        setMessageToast(`Бонусы не списаны`)
-        setShowToast(true)
+        Toast.show({
+          type: 'error',
+          text1: 'Бонусы не списаны',
+        });
         setUserName()
+        setAmount()
       })
   }
   const quit = () => {
@@ -149,31 +139,15 @@ const HomeOne = ({ navigation, props }) => {
   }
 
   const iconSize = 1.5
-  const [w, setw] = useState("101%")
-  const [isactive, setisactive] = useState(false)
-  useEffect(() => {
-   
-      setisactive(true)
-   
-  }, [w])
-  useEffect(() => {
-    const timeId = setTimeout(() => {
-      setw("101%")
-    }, 10)
-
-    return () => {
-      setw("100%")
-    }
-  }, [scanning])
+  
   return (
 <Fragment>
-      <Toast type={typeTost} show={showToast} message={messageToast}  setShowToast={setShowToast}/>
       {scanning?
-      <View style={{ flexDirection: "column", alignItems: "center",width:"100%" , height:"100%" , backgroundColor:"#f72"}}>
+      <View style={{ flexDirection: "column", alignItems: "center",width:"100%" , height:"100%" }}>
         <Camera
           style={{ width: "100%", height: "100%" }}
           device={device}
-          isActive={isactive}
+          isActive={true}
           {...props} codeScanner={codeScanner}
         >
         </Camera>
@@ -213,27 +187,27 @@ const HomeOne = ({ navigation, props }) => {
         <ScrollView bounces={false} 
           contentContainerStyle={styles.scrollView} >
           <KeyboardAvoidingView behavior={Platform.OS == 'ios' ? "position" : null}>
-              <View style={{ height:"100%"}}>
+              <View style={{ height:"100%", }}>
                 <View style={{ backgroundColor: "#1e2e34", flexDirection: "row", alignItems: "center", justifyContent: "space-between", }}>
                   <View style={{ paddingLeft: 20, marginVertical: 10 }}>
                     <TouchableOpacity onPress={() => navigation.navigate('HistoryScreen')}>
-                      <HistoryIcon  width={30} height={30} fill="#fff" />
+                      <HistoryIcon  width={22} height={22} fill="#fff" />
                     </TouchableOpacity>
                   </View>
-                  <Text style={{ color: "#FFF", fontWeight: 400, fontSize: 26, }}>GreenBonus</Text>
+                  <Text style={{ color: "#FFF", fontWeight: 400, fontSize: 26, }}>HalalBonus</Text>
                   <View style={{ paddingRight: 20 }}>
                     <TouchableOpacity onPress={() => navigation.navigate('SettingsScreen')}>
-                      <SettingsIcon width={30} height={30} fill="#fff" />
+                      <SettingsIcon width={22} height={22} fill="#fff" />
                     </TouchableOpacity>
                   </View>
                 </View>
-                <View style={styles.body}>
+                <View style={styles.body }>
                     <View style={styles.logoCont}>
                       {userName ?
                         <>
                           <LogoQROn width={'100%'} height={'100%'} preserveAspectRatio="none" style={{ position: 'absolute', top: 0 }} />
-                          <Text style={styles.userTitleText}>{tr.customer}</Text>
-                          <View style={styles.userNameCont}>
+                          
+                          <View style={[styles.userNameCont,{position:"absolute",bottom:"35%"}]}>
                             <Text
                               numberOfLines={2}
                               style={styles.userNameText}>{userName}</Text>
@@ -324,7 +298,6 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   exitbtn: {
-
     width: 65,
     height: 65,
     justifyContent: 'center',
@@ -341,7 +314,7 @@ const styles = StyleSheet.create({
     color: '#2e2e2e'
   },
   inputTaxValuea: {
-    marginTop: 10,
+    marginTop: 5,
     width: '100%',
     height: 54,
     borderRadius: 10,
@@ -357,24 +330,25 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: '#eeeded',
     alignItems: 'center',
-    height:'100%',
-    paddingHorizontal:20
+    justifyContent:"space-between",
+    paddingBottom:40, 
+    zIndex:-1
   },
   userNameCont: {
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    marginTop: '8%',
-    width: '78%',
+    width: '80%',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
     borderRadius: 10,
     elevation: 10,
+
   },
   userNameText: {
     fontFamily: 'SFUIDisplay-Light',
     fontSize: 29,
     color: '#2e2e2e',
+
+    backgroundColor: '#fff',
+    marginTop:"40%", padding:10, width:"100%", textAlign:"center"
   },
   userMoneyText: {
     fontFamily: 'SFUIDisplay-Bold',
@@ -390,7 +364,7 @@ const styles = StyleSheet.create({
     fontFamily: 'SFUIDisplay-Light',
     fontSize: 29,
     color: '#2e2e2e',
-    margin:20
+    marginTop:30
   },
 
   scanAgainButton: {
