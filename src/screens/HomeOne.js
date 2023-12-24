@@ -44,7 +44,7 @@ const tr = {
 }
 
 const HomeOne = ({ navigation, props }) => {
-
+  const devices = Camera.getAvailableCameraDevices()
   const device = useCameraDevice('back')
   const { hasPermission, requestPermission } = useCameraPermission()
   const token = useSelector(state => state.Reducers.authToken);
@@ -56,6 +56,7 @@ const HomeOne = ({ navigation, props }) => {
   const windowWidth = Dimensions.get('window').width;
 
   useEffect(() => {
+    console.log(devices);
     if (hasPermission == false) {
       requestPermission()
     }

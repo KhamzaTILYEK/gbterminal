@@ -5,7 +5,7 @@
     [
       "react-native-vision-camera",
       {
-        "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
+        "cameraPermissionText": "To identify the user via QR code",
         "enableCodeScanner": true
       }
     ]

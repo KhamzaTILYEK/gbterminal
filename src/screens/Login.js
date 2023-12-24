@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableOpacity, KeyboardAvoidingView
 } from 'react-native'
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view'
 import {
   EmailIcon,
   PasswordIcon,
@@ -48,19 +49,8 @@ const App = () => {
   const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
   const [waiting, setWaiting] = useState(false)
-  const [showToast, setShowToast] = useState(false)
-  const [typeTost, setTypeToast] = useState('')
-  const [messageToast, setMessageToast] = useState('')
   const dispatch = useDispatch()
-
-  useEffect(() => {
-    const timeId = setTimeout(() => {
-      setShowToast(false)
-    }, 5000)
-    return () => {
-      clearTimeout(timeId)
-    }
-  }, [showToast])
+  
   const onSubmit = () => {
     if(login && password){
       setWaiting(true)
@@ -83,7 +73,6 @@ const App = () => {
         type: 'error',
         text1: 'Введите учетные данные',
       });
-      setMessageToast('Введите учетные данные')
       
     }
   }
@@ -91,10 +80,11 @@ const App = () => {
   return (
     <Fragment>
       <SafeAreaView style={{ flex: 1, backgroundColor: "#1e2e34" }}>
-        <ScrollView bounces={false}
+        <ScrollView
           contentInsetAdjustmentBehavior="automatic"
-          contentContainerStyle={styles.scrollView}>
-          <KeyboardAvoidingView behavior={Platform.OS == 'ios' ? "position" : null}>
+          contentContainerStyle={styles.scrollView}
+          bounces={false}>
+          <KeyboardAwareScrollView behavior={Platform.OS == 'ios' ? "position" : null}>
             <View style={styles.body}>
               <View style={styles.logoCont}>
                 <LogoBg width={'100%'} height={"100%"} preserveAspectRatio="none"
@@ -132,41 +122,47 @@ const App = () => {
                     onPress={() => onSubmit(login, password, waiting, setWaiting)}>
                    
                     {waiting ?
-                  <ActivityIndicator size="small" style={{  }} /> :
+                  <ActivityIndicator size="small" /> :
                   
                     <Text style={styles.buttonText}>{tr.login}</Text>}
                   </TouchableOpacity>
-               
               </View>
             </View>
-          </KeyboardAvoidingView>
-        </ScrollView>
+          </KeyboardAwareScrollView>
+          </ScrollView>
       </SafeAreaView>
     </Fragment>
   );
 };
 
 const styles = StyleSheet.create({
+  body: {
+    height:"100%",
+    backgroundColor: '#25363d',
+    justifyContent:'space-around',
+    flexDirection:"column", 
+    alignItems:"center"
+  },
   scrollView: {
     flexGrow: 1,
-  },
-  body: {
-    flexGrow: 1,
     backgroundColor: '#25363d',
-  },
+},
   logoCont: {
     width: '100%',
     aspectRatio: 1.09,
     alignItems: 'center',
+    maxHeight:700,
+    maxWidth:700
   },
   inputBlock: {
     marginTop: 10,
-    width: '100%',
     aspectRatio: 1.2,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'transparent',
     paddingHorizontal: 24,
+    flex:1, 
+    maxWidth:400
   },
   inputTitle: {
     fontFamily: 'SFUIDisplay-Thin',
@@ -203,9 +199,12 @@ const styles = StyleSheet.create({
     fontSize: 19,
     color: '#273b4a',
   },
-  iconMargin: {
-    left: -11,
+  iconMargin:{
+    left:-11
   }
 });
 
 export default App;
+
+    
+   
