@@ -1,14 +1,13 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import {
-  Platform, ActivityIndicator,
+import React, { Fragment, useState,  } from 'react';
+import { useKeyboard } from '@react-native-community/hooks'
+import {ActivityIndicator,
   StyleSheet,
   ScrollView,
   View,
   Text,
   TextInput,
-  TouchableOpacity, KeyboardAvoidingView
+  TouchableOpacity,
 } from 'react-native'
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view'
 import {
   EmailIcon,
   PasswordIcon,
@@ -46,6 +45,7 @@ const tr = {
   email: 'Электронная почта или Логин'
 }
 const App = () => {
+  const keyboard = useKeyboard()
   const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
   const [waiting, setWaiting] = useState(false)
@@ -79,12 +79,11 @@ const App = () => {
 
   return (
     <Fragment>
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#1e2e34" }}>
+      <SafeAreaView style={[{ flex: 1, backgroundColor: "#1e2e34" },{marginTop:keyboard.keyboardShown&& -keyboard.keyboardHeight/2}]}>
         <ScrollView
           contentInsetAdjustmentBehavior="automatic"
           contentContainerStyle={styles.scrollView}
           bounces={false}>
-          <KeyboardAwareScrollView behavior={Platform.OS == 'ios' ? "position" : null}>
             <View style={styles.body}>
               <View style={styles.logoCont}>
                 <LogoBg width={'100%'} height={"100%"} preserveAspectRatio="none"
@@ -128,7 +127,6 @@ const App = () => {
                   </TouchableOpacity>
               </View>
             </View>
-          </KeyboardAwareScrollView>
           </ScrollView>
       </SafeAreaView>
     </Fragment>
@@ -145,7 +143,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flexGrow: 1,
-    backgroundColor: '#25363d',
+    backgroundColor: '#25363d'
 },
   logoCont: {
     width: '100%',
@@ -160,7 +158,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'transparent',
-    paddingHorizontal: 24,
     flex:1, 
     maxWidth:400
   },

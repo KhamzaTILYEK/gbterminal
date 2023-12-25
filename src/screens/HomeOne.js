@@ -7,6 +7,7 @@ import {
   TextInput,
   TouchableOpacity, Dimensions, KeyboardAvoidingView,
 } from 'react-native';
+import { useKeyboard } from '@react-native-community/hooks'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useCodeScanner, useCameraPermission, Camera, useCameraDevice } from 'react-native-vision-camera';
 import { LogoQROff } from '../assets/svg_icons/qr_off_icon.js';
@@ -44,36 +45,42 @@ const tr = {
 }
 
 const HomeOne = ({ navigation, props }) => {
-  const devices = Camera.getAvailableCameraDevices()
   const device = useCameraDevice('back')
   const { hasPermission, requestPermission } = useCameraPermission()
   const token = useSelector(state => state.Reducers.authToken);
   const [userId, setUserId] = useState()
   const [userName, setUserName] = useState()
   const [amount, setAmount] = useState()
+  const [w, setW] = useState("100%")
   const [isLoading, setIsLoading] = useState(false)
   const [scanning, setScanning] = useState(false)
   const windowWidth = Dimensions.get('window').width;
+  const keyboard = useKeyboard()
+  const [userQR, setQR] = useState()
 
   useEffect(() => {
-    console.log(devices);
+    
     if (hasPermission == false) {
       requestPermission()
     }
+    setTimeout(() => {
+      if(w=="100%"){
+        setW("101%")
+      }else{setW("100%")}
+    }, 200)
+   
   }, [scanning])
 
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13'],
-
     onCodeScanned: (codes) => {
+      setQR(codes[0].value)
       if(codes[0].value.slice(0, 1)=='{' && codes[0].value.slice(-1)=="}"){
-
         if (JSON.parse(codes[0].value)?.name) {
           setUserName(`${JSON.parse(codes[0].value).name} ${JSON.parse(codes[0].value).surname}`)
           setUserId(JSON.parse(codes[0].value).id)
           setScanning(false)
         }
-
       }else{
             setIsLoading(true)
             axios.get(`https://data.halalguide.me/api/user/${codes[0].value}`, {
@@ -146,7 +153,8 @@ const HomeOne = ({ navigation, props }) => {
       {scanning?
       <View style={{ flexDirection: "column", alignItems: "center",width:"100%" , height:"100%" }}>
         <Camera
-          style={{ width: "100%", height: "100%" }}
+          style={{ width: w, height: "100%" }}
+          
           device={device}
           isActive={true}
           {...props} codeScanner={codeScanner}
@@ -169,6 +177,7 @@ const HomeOne = ({ navigation, props }) => {
             {/* Text1 */}
             <Text style={{ textAlign: "center", color: "#fff", fontSize: 26, fontWeight: 600, paddingHorizontal: 20 }}>
               {tr.place_qr_code}
+              {userQR}
             </Text>
             {/* Box */}
             <View style={{ borderWidth: 2, borderColor: "#ffeb3b", borderRadius: 20, width: "100%", height: windowWidth - 30 }}></View>
@@ -184,16 +193,16 @@ const HomeOne = ({ navigation, props }) => {
             </View>
         </View>
       </View>
-      :<SafeAreaView style={{  backgroundColor: "#1e2e34"  }} edges={['top']}>
+      :<SafeAreaView style={[{  backgroundColor: "#1e2e34"  },{marginTop:keyboard.keyboardShown&& -keyboard.keyboardHeight/2}]} edges={['top']}>
         <ScrollView bounces={false} 
           contentContainerStyle={styles.scrollView} >
+          {userName?
           <KeyboardAvoidingView behavior={Platform.OS == 'ios' ? "position" : null}>
-              <View style={{height:"100%", flexDirection:"column"}}>
-                <View style={{ backgroundColor: "#1e2e34", flexDirection: "row", alignItems: "center", justifyContent: "space-between", }}>
-                  <View style={{ paddingLeft: 10, marginVertical: 10 }}>
-                    <TouchableOpacity style={{padding:5}} onPress={() => navigation.navigate('HistoryScreen')}>
-                      <HistoryIcon  width={22} height={22} fill="#fff" />
-                    </TouchableOpacity>
+              <View style={{ backgroundColor: "#1e2e34", flexDirection: "row", alignItems: "center", justifyContent: "space-between",position:"absolute" , width:"100%"}}>
+                <View style={{ paddingLeft: 10, marginVertical: 10 }}>
+                  <TouchableOpacity style={{padding:5}} onPress={() => navigation.navigate('HistoryScreen')}>
+                    <HistoryIcon  width={22} height={22} fill="#fff" />
+                  </TouchableOpacity>
                   </View>
                   <Text style={{ color: "#FFF", fontWeight: 400, fontSize: 26, }}>HalalBonus</Text>
                   <View style={{ paddingRight: 10 }}>
@@ -201,94 +210,148 @@ const HomeOne = ({ navigation, props }) => {
                       <SettingsIcon width={22} height={22} fill="#fff" />
                     </TouchableOpacity>
                   </View>
-                </View>
-                <View style={{flex:1,backgroundColor:"#eeeded", zIndex:-1}}>
-                <View style={styles.body }>
+              </View>
+              <View style={{height:"100%",backgroundColor:"#eeeded", zIndex:-1,alignItems:"center" , justifyContent:"space-between"}}>
+                  
                     <View style={styles.logoCont}>
-                      {userName ?
-                        <>
-                          <LogoQROn width={'100%'} height={'100%'} preserveAspectRatio="none" style={{ position: 'absolute', }} />
-                          
-                          <Text style={styles.userTitleText}>{userName}</Text>
-                          <TouchableOpacity style={styles.scanAgainButton} onPress={() =>(setAmount(), setUserName(), setScanning(true))}>
+                      <LogoQROn width={'100%'} height={'100%'} preserveAspectRatio="none" style={{ position: 'absolute', }} />
+                      <Text style={styles.userTitleText}>{userName}</Text>
+                      <TouchableOpacity style={styles.scanAgainButton} onPress={() =>(setAmount(), setUserName(), setScanning(true),setW("101%"))}>
                         <Text style={styles.scanAgainBtnText}>
                           { tr.rescan }
                         </Text>
                       </TouchableOpacity>
-                        </> :
-                        <>
-                          <LogoQROff width={'100%'} height={'100%'} preserveAspectRatio="none" style={{ position: 'absolute',}} />
-                          <Text style={styles.userTitleText}>{tr.scan_qr_code}</Text>
-                          <TouchableOpacity style={styles.scanAgainButton} onPress={() =>(setAmount(), setUserName(), setScanning(true))}>
-                        <Text style={styles.scanAgainBtnText}>
-                          {tr.scan}
-                        </Text>
-                      </TouchableOpacity>
-                        </>
-                      }
-                      
                     </View>
                     <View style={styles.bottomBlock}>
-                      {userName ?
-                        <>
-                          <Text style={styles.addOrderCostTexta}>{tr.add_order_price}</Text>
-                          <TextInput
+                      <Text style={styles.addOrderCostTexta}>{tr.add_order_price}</Text>
+                        <TextInput
                             autoFocus={true}
                             keyboardType={'numeric'}
                             style={styles.inputTaxValuea}
                             placeholder={tr.total_price + ' ₸'}
                             onChangeText={amount => setAmount(amount)}
                             placeholderColor={'#999999'}
-                          />
-                          <Text style={styles.instructionText}><Text style={styles.attentionText}>{tr.warning}</Text> {tr.instruction}</Text>
-                          <View style={styles.choiceBtnCont}>
-                            <TouchableOpacity style={styles.choiceBtnLefta} onPress={() => { getBonus() }}>
-                              <Text style={styles.choiceBtnTexta}>{tr.pay}</Text>
-                            </TouchableOpacity>
-                            <View style={styles.orPositionO}>
-                              <View style={styles.orPosition}>
-                                <View style={styles.choiceBtnOrCont}>
-                                  <Text style={styles.choiceBtnOrText}>{tr.or}</Text>
-                                </View>
-                              </View>
-                            </View>
-                            <TouchableOpacity style={styles.choiceBtnRighta} onPress={() => { addBonus() }}>
-                              <Text style={[styles.choiceBtnTexta, styles.choiceBtnRightTexta]}>{tr.add_bonus}</Text>
-                            </TouchableOpacity>
-                          </View>
-                        </>
-                        :
-                        <>
-                          <Text style={styles.addOrderCostText}>{tr.add_order_price}</Text>
-                          <TextInput
-                            editable={false}
-                            keyboardType={'numeric'}
-                            style={styles.inputTaxValue}
-                            placeholder={tr.total_price + ' ₸'}
-                            placeholderColor={'#bbbbbb'}
-                            defaultValue={amount}
-                          />
-                          <Text style={styles.instructionText}><Text style={styles.attentionText}>{tr.warning}</Text> {tr.instruction}</Text>
-                          <View style={styles.choiceBtnCont}>
-                            <View style={styles.choiceBtnLeft}>
-                              <Text style={styles.choiceBtnText}>{tr.pay}</Text>
-                            </View>
+                        />
+                        <Text style={styles.instructionText}><Text style={styles.attentionText}>{tr.warning}</Text> {tr.instruction}</Text>
+                        <View style={styles.choiceBtnCont}>
+                          <TouchableOpacity style={styles.choiceBtnLefta} onPress={() => { getBonus() }}>
+                            <Text style={styles.choiceBtnTexta}>{tr.pay}</Text>
+                          </TouchableOpacity>
+                          <View style={styles.orPositionO}>
                             <View style={styles.orPosition}>
                               <View style={styles.choiceBtnOrCont}>
                                 <Text style={styles.choiceBtnOrText}>{tr.or}</Text>
                               </View>
                             </View>
-                            <View style={styles.choiceBtnRight}>
-                              <Text style={[styles.choiceBtnText]}>{tr.add_bonus}</Text>
-                            </View>
                           </View>
-                        </>
-                      }
+                          <TouchableOpacity style={styles.choiceBtnRighta} onPress={() => { addBonus() }}>
+                            <Text style={[styles.choiceBtnTexta, styles.choiceBtnRightTexta]}>{tr.add_bonus}</Text>
+                          </TouchableOpacity>
                     </View>
                   </View>
-                </View>
-             </View>
+              </View>
           </KeyboardAvoidingView>
+          :
+          <View style={{height:"100%", flexDirection:"column"}}>
+          <View style={{ backgroundColor: "#1e2e34", flexDirection: "row", alignItems: "center", justifyContent: "space-between", }}>
+            <View style={{ paddingLeft: 10, marginVertical: 10 }}>
+              <TouchableOpacity style={{padding:5}} onPress={() => navigation.navigate('HistoryScreen')}>
+                <HistoryIcon  width={22} height={22} fill="#fff" />
+              </TouchableOpacity>
+            </View>
+            <Text style={{ color: "#FFF", fontWeight: 400, fontSize: 26, }}>HalalBonus</Text>
+            <View style={{ paddingRight: 10 }}>
+              <TouchableOpacity style={{padding:5}}  onPress={() => navigation.navigate('SettingsScreen')}>
+                <SettingsIcon width={22} height={22} fill="#fff" />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={{flex:1,backgroundColor:"#eeeded", zIndex:-1}}>
+          <View style={{flexDirection:"column",alignItems:"center"}}>
+              <View style={styles.logoCont}>
+                {userName ?
+                  <>
+                    <LogoQROn width={'100%'} height={'100%'} preserveAspectRatio="none" style={{ position: 'absolute', }} />
+                    
+                    <Text style={styles.userTitleText}>{userName}</Text>
+                    <TouchableOpacity style={styles.scanAgainButton} onPress={() =>(setAmount(), setUserName(), setScanning(true),setW("101%"))}>
+                  <Text style={styles.scanAgainBtnText}>
+                    { tr.rescan }
+                  </Text>
+                </TouchableOpacity>
+                  </> :
+                  <>
+                    <LogoQROff width={'100%'} height={'100%'} preserveAspectRatio="none" style={{ position: 'absolute',}} />
+                    <Text style={styles.userTitleText}>{tr.scan_qr_code}</Text>
+                    <TouchableOpacity style={styles.scanAgainButton} onPress={() =>(setAmount(), setUserName(), setScanning(true))}>
+                  <Text style={styles.scanAgainBtnText}>
+                    {tr.scan}
+                  </Text>
+                </TouchableOpacity>
+                  </>
+                }
+                
+              </View>
+              <View style={styles.bottomBlock}>
+                {userName ?
+                  <>
+                    <Text style={styles.addOrderCostTexta}>{tr.add_order_price}</Text>
+                    <TextInput
+                      autoFocus={true}
+                      keyboardType={'numeric'}
+                      style={styles.inputTaxValuea}
+                      placeholder={tr.total_price + ' ₸'}
+                      onChangeText={amount => setAmount(amount)}
+                      placeholderColor={'#999999'}
+                    />
+                    <Text style={styles.instructionText}><Text style={styles.attentionText}>{tr.warning}</Text> {tr.instruction}</Text>
+                    <View style={styles.choiceBtnCont}>
+                      <TouchableOpacity style={styles.choiceBtnLefta} onPress={() => { getBonus() }}>
+                        <Text style={styles.choiceBtnTexta}>{tr.pay}</Text>
+                      </TouchableOpacity>
+                      <View style={styles.orPositionO}>
+                        <View style={styles.orPosition}>
+                          <View style={styles.choiceBtnOrCont}>
+                            <Text style={styles.choiceBtnOrText}>{tr.or}</Text>
+                          </View>
+                        </View>
+                      </View>
+                      <TouchableOpacity style={styles.choiceBtnRighta} onPress={() => { addBonus() }}>
+                        <Text style={[styles.choiceBtnTexta, styles.choiceBtnRightTexta]}>{tr.add_bonus}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                  :
+                  <>
+                    <Text style={styles.addOrderCostText}>{tr.add_order_price}</Text>
+                    <TextInput
+                      editable={false}
+                      keyboardType={'numeric'}
+                      style={styles.inputTaxValue}
+                      placeholder={tr.total_price + ' ₸'}
+                      placeholderColor={'#bbbbbb'}
+                      defaultValue={amount}
+                    />
+                    <Text style={styles.instructionText}><Text style={styles.attentionText}>{tr.warning}</Text> {tr.instruction}</Text>
+                    <View style={styles.choiceBtnCont}>
+                      <View style={styles.choiceBtnLeft}>
+                        <Text style={styles.choiceBtnText}>{tr.pay}</Text>
+                      </View>
+                      <View style={styles.orPosition}>
+                        <View style={styles.choiceBtnOrCont}>
+                          <Text style={styles.choiceBtnOrText}>{tr.or}</Text>
+                        </View>
+                      </View>
+                      <View style={styles.choiceBtnRight}>
+                        <Text style={[styles.choiceBtnText]}>{tr.add_bonus}</Text>
+                      </View>
+                    </View>
+                  </>
+                }
+              </View>
+            </View>
+          </View>
+          </View>}
         </ScrollView>
       </SafeAreaView>}
       {isLoading && <View style={{ flex: 1, justifyContent: 'center', position: "absolute", width: "100%", height: "100%", backgroundColor: "#00000099" }}>
@@ -329,13 +392,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlignVertical: 'center',
     paddingHorizontal: 20,
-  },
-  body: {
-    height:"100%",
-    alignItems: 'center',
-    marginTop:-50,
-    flexDirection:"column",
-    justifyContent:"space-around"
   },
   userNameCont: {
     width: '80%',
@@ -390,7 +446,7 @@ const styles = StyleSheet.create({
   bottomBlock: {
     width: '80%',
     alignItems: 'center',
-    paddingVertical: 24,
+    paddingVertical:20
   },
 
   addOrderCostText: {
