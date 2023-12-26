@@ -5,7 +5,7 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity, Dimensions, KeyboardAvoidingView,
+  TouchableOpacity, Dimensions, KeyboardAvoidingView,StatusBar
 } from 'react-native';
 import { useKeyboard } from '@react-native-community/hooks'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -51,24 +51,23 @@ const HomeOne = ({ navigation, props }) => {
   const [userId, setUserId] = useState()
   const [userName, setUserName] = useState()
   const [amount, setAmount] = useState()
-  const [w, setW] = useState("100%")
+  const [w, setW] = useState("#f72")
   const [isLoading, setIsLoading] = useState(false)
   const [scanning, setScanning] = useState(false)
   const windowWidth = Dimensions.get('window').width;
   const keyboard = useKeyboard()
   const [userQR, setQR] = useState()
-
+  let deviceHeight = Dimensions.get('window').height
   useEffect(() => {
-    
     if (hasPermission == false) {
       requestPermission()
+      setIsLoading(false)
     }
-    setTimeout(() => {
-      if(w=="100%"){
-        setW("101%")
-      }else{setW("100%")}
-    }, 200)
-   
+    // setTimeout(() => {
+    //   if(w=="#f72"){
+    //     setW("#f73")
+    //   }else{setW("#f72")}
+    // }, 200)
   }, [scanning])
 
   const codeScanner = useCodeScanner({
@@ -149,176 +148,117 @@ const HomeOne = ({ navigation, props }) => {
   const iconSize = 1.5
   
   return (
-<Fragment>
-      {scanning?
-      <View style={{ flexDirection: "column", alignItems: "center",width:"100%" , height:"100%" }}>
-        <Camera
-          style={{ width: w, height: "100%" }}
-          
-          device={device}
-          isActive={true}
-          {...props} codeScanner={codeScanner}
-        >
-        </Camera>
-        <View style={{ position: "absolute", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "space-around" }}>
-          {/* Logo */}
-          <View style={{ borderRadius: 10 * iconSize, borderWidth: 2 * iconSize, borderColor: "#fff", padding: 4 * iconSize, flexDirection: "column" }}>
-              <View style={{ borderColor: "#fff", borderBottomWidth: 2 * iconSize, flexDirection: "row", }}>
-                <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginBottom: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
-                <View style={{ borderWidth: iconSize, borderColor: "#fff", marginHorizontal: 2 * iconSize }}></View>
-                <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginBottom: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
+    <Fragment>
+    <StatusBar backgroundColor="#1e2e34" barStyle="light-content" />
+    <SafeAreaView style={{ flexDirection:"column"}}>
+      {scanning ?
+        <>
+          <View style={{ flexDirection: "column", alignItems: "center" }}>
+            <Camera
+              style={{ width: "100%", height: "100%" , backgroundColor:w}}
+              device={device}
+
+              isActive={true}
+              {...props} codeScanner={codeScanner}
+            >
+            </Camera>
+            <View style={{ position: "absolute", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "space-around" }}>
+              {/* Logo */}
+              <View style={{ borderRadius: 10 * iconSize, borderWidth: 2 * iconSize, borderColor: "#fff", padding: 4 * iconSize, flexDirection: "column" }}>
+                <View style={{ borderColor: "#fff", borderBottomWidth: 2 * iconSize, flexDirection: "row", }}>
+                  <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginBottom: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
+                  <View style={{ borderWidth: iconSize, borderColor: "#fff", marginHorizontal: 2 * iconSize }}></View>
+                  <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginBottom: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
+                </View>
+                <View style={{ flexDirection: "row", }}>
+                  <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginTop: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
+                  <View style={{ borderWidth: iconSize, borderColor: "#fff", marginHorizontal: 2 * iconSize }}></View>
+                  <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginTop: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
+                </View>
               </View>
-              <View style={{ flexDirection: "row", }}>
-                <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginTop: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
-                <View style={{ borderWidth: iconSize, borderColor: "#fff", marginHorizontal: 2 * iconSize }}></View>
-                <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginTop: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
+              {/* Text1 */}
+              <Text style={{ textAlign: "center", color: "#fff", fontSize: 26, fontWeight: 600, paddingHorizontal: 20 }}>
+                {tr.place_qr_code}
+              </Text>
+              {/* Box */}
+              <View style={{ borderWidth: 2, borderColor: "#ffeb3b", borderRadius: 20, width: "100%", height: windowWidth - 30 }}></View>
+              {/* Text2 */}
+              <Text style={{ textAlign: "center", color: "#fff", fontSize: 18, fontWeight: 500 }}>
+                {tr.place_qr_code2}
+              </Text>
+              {/* Button  */}
+              <View style={{ height: 42, width: "100%" }}>
+                <TouchableOpacity onPress={() => quit()} style={{ width: "100%", borderRadius: 15, borderWidth: 2, borderColor: "#fff", flex: 1, alignItems: "center", padding: 5, backgroundColor: "#ffffff33" }}>
+                  <Text style={{ color: "#fff", fontWeight: 500, fontSize: 18, }}>{tr.cancel}</Text>
+                </TouchableOpacity>
               </View>
-          </View>
-            {/* Text1 */}
-            <Text style={{ textAlign: "center", color: "#fff", fontSize: 26, fontWeight: 600, paddingHorizontal: 20 }}>
-              {tr.place_qr_code}
-              {userQR}
-            </Text>
-            {/* Box */}
-            <View style={{ borderWidth: 2, borderColor: "#ffeb3b", borderRadius: 20, width: "100%", height: windowWidth - 30 }}></View>
-            {/* Text2 */}
-            <Text style={{ textAlign: "center", color: "#fff", fontSize: 18, fontWeight: 500 }}>
-              {tr.place_qr_code2}
-            </Text>
-            {/* Button  */}
-            <View style={{ height: 42, width: "100%" }}>
-              <TouchableOpacity onPress={() => quit()} style={{ width: "100%", borderRadius: 15, borderWidth: 2, borderColor: "#fff", flex: 1, alignItems: "center", padding: 5, backgroundColor: "#ffffff33" }}>
-                <Text style={{ color: "#fff", fontWeight: 500, fontSize: 18, }}>{tr.cancel}</Text>
-              </TouchableOpacity>
             </View>
-        </View>
-      </View>
-      :<SafeAreaView style={[{  backgroundColor: "#1e2e34"  },{marginTop:keyboard.keyboardShown&& -keyboard.keyboardHeight/2}]} edges={['top']}>
-        <ScrollView bounces={false} 
-          contentContainerStyle={styles.scrollView} >
-          {userName?
-          <KeyboardAvoidingView behavior={Platform.OS == 'ios' ? "position" : null}>
-              <View style={{ backgroundColor: "#1e2e34", flexDirection: "row", alignItems: "center", justifyContent: "space-between",position:"absolute" , width:"100%"}}>
-                <View style={{ paddingLeft: 10, marginVertical: 10 }}>
-                  <TouchableOpacity style={{padding:5}} onPress={() => navigation.navigate('HistoryScreen')}>
-                    <HistoryIcon  width={22} height={22} fill="#fff" />
-                  </TouchableOpacity>
-                  </View>
-                  <Text style={{ color: "#FFF", fontWeight: 400, fontSize: 26, }}>HalalBonus</Text>
-                  <View style={{ paddingRight: 10 }}>
-                    <TouchableOpacity style={{padding:5}}  onPress={() => navigation.navigate('SettingsScreen')}>
-                      <SettingsIcon width={22} height={22} fill="#fff" />
-                    </TouchableOpacity>
-                  </View>
-              </View>
-              <View style={{height:"100%",backgroundColor:"#eeeded", zIndex:-1,alignItems:"center" , justifyContent:"space-between"}}>
-                  
-                    <View style={styles.logoCont}>
-                      <LogoQROn width={'100%'} height={'100%'} preserveAspectRatio="none" style={{ position: 'absolute', }} />
-                      <Text style={styles.userTitleText}>{userName}</Text>
-                      <TouchableOpacity style={styles.scanAgainButton} onPress={() =>(setAmount(), setUserName(), setScanning(true),setW("101%"))}>
-                        <Text style={styles.scanAgainBtnText}>
-                          { tr.rescan }
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                    <View style={styles.bottomBlock}>
-                      <Text style={styles.addOrderCostTexta}>{tr.add_order_price}</Text>
-                        <TextInput
-                            autoFocus={true}
-                            keyboardType={'numeric'}
-                            style={styles.inputTaxValuea}
-                            placeholder={tr.total_price + ' ₸'}
-                            onChangeText={amount => setAmount(amount)}
-                            placeholderColor={'#999999'}
-                        />
-                        <Text style={styles.instructionText}><Text style={styles.attentionText}>{tr.warning}</Text> {tr.instruction}</Text>
-                        <View style={styles.choiceBtnCont}>
-                          <TouchableOpacity style={styles.choiceBtnLefta} onPress={() => { getBonus() }}>
-                            <Text style={styles.choiceBtnTexta}>{tr.pay}</Text>
-                          </TouchableOpacity>
-                          <View style={styles.orPositionO}>
-                            <View style={styles.orPosition}>
-                              <View style={styles.choiceBtnOrCont}>
-                                <Text style={styles.choiceBtnOrText}>{tr.or}</Text>
-                              </View>
-                            </View>
-                          </View>
-                          <TouchableOpacity style={styles.choiceBtnRighta} onPress={() => { addBonus() }}>
-                            <Text style={[styles.choiceBtnTexta, styles.choiceBtnRightTexta]}>{tr.add_bonus}</Text>
-                          </TouchableOpacity>
-                    </View>
-                  </View>
-              </View>
-          </KeyboardAvoidingView>
-          :
-          <View style={{height:"100%", flexDirection:"column"}}>
+          </View>
+        </>
+        :
+        <>
           <View style={{ backgroundColor: "#1e2e34", flexDirection: "row", alignItems: "center", justifyContent: "space-between", }}>
-            <View style={{ paddingLeft: 10, marginVertical: 10 }}>
-              <TouchableOpacity style={{padding:5}} onPress={() => navigation.navigate('HistoryScreen')}>
-                <HistoryIcon  width={22} height={22} fill="#fff" />
+            <View style={{ paddingLeft: 20, marginVertical: 10 }}>
+              <TouchableOpacity>
+                <HistoryIcon onPress={() => navigation.navigate('HistoryScreen')} width={30} height={30} fill="#fff" />
               </TouchableOpacity>
             </View>
-            <Text style={{ color: "#FFF", fontWeight: 400, fontSize: 26, }}>HalalBonus</Text>
-            <View style={{ paddingRight: 10 }}>
-              <TouchableOpacity style={{padding:5}}  onPress={() => navigation.navigate('SettingsScreen')}>
-                <SettingsIcon width={22} height={22} fill="#fff" />
+            <Text style={{ color: "#FFF", fontWeight: 400, fontSize: 26, }}>GreenBonus</Text>
+            <View style={{ paddingRight: 20 }}>
+              <TouchableOpacity onPress={() => navigation.navigate('SettingsScreen')}>
+                <SettingsIcon width={30} height={30} fill="#fff" />
               </TouchableOpacity>
+
             </View>
           </View>
-          <View style={{flex:1,backgroundColor:"#eeeded", zIndex:-1}}>
-          <View style={{flexDirection:"column",alignItems:"center"}}>
+          <ScrollView
+            contentContainerStyle={[styles.scrollView]}>
+            <View style={[styles.body,{marginTop:keyboard.keyboardShown?-keyboard.keyboardHeight+54: -54,}]}>
               <View style={styles.logoCont}>
                 {userName ?
                   <>
-                    <LogoQROn width={'100%'} height={'100%'} preserveAspectRatio="none" style={{ position: 'absolute', }} />
-                    
-                    <Text style={styles.userTitleText}>{userName}</Text>
-                    <TouchableOpacity style={styles.scanAgainButton} onPress={() =>(setAmount(), setUserName(), setScanning(true),setW("101%"))}>
-                  <Text style={styles.scanAgainBtnText}>
-                    { tr.rescan }
-                  </Text>
-                </TouchableOpacity>
+                    <LogoQROn width={'100%'} height={'100%'} preserveAspectRatio="none" style={{ position: 'absolute', top: 0 }} />
+                    <Text style={styles.userTitleText}>{tr.customer}</Text>
+                    <View style={styles.userNameCont}>
+                      <Text
+                        numberOfLines={2}
+                        style={styles.userNameText}>{userName}</Text>
+                    </View>
                   </> :
                   <>
-                    <LogoQROff width={'100%'} height={'100%'} preserveAspectRatio="none" style={{ position: 'absolute',}} />
+                    <LogoQROff width={'100%'} height={'100%'} preserveAspectRatio="none" style={{ position: 'absolute', top: 0 }} />
                     <Text style={styles.userTitleText}>{tr.scan_qr_code}</Text>
-                    <TouchableOpacity style={styles.scanAgainButton} onPress={() =>(setAmount(), setUserName(), setScanning(true))}>
-                  <Text style={styles.scanAgainBtnText}>
-                    {tr.scan}
-                  </Text>
-                </TouchableOpacity>
                   </>
                 }
-                
+                <TouchableOpacity style={styles.scanAgainButton} onPress={() => setScanning(true)}>
+                  <Text style={styles.scanAgainBtnText}>
+                    {userName ? tr.rescan : tr.scan}
+                  </Text>
+                </TouchableOpacity>
               </View>
               <View style={styles.bottomBlock}>
                 {userName ?
                   <>
                     <Text style={styles.addOrderCostTexta}>{tr.add_order_price}</Text>
                     <TextInput
-                      autoFocus={true}
                       keyboardType={'numeric'}
                       style={styles.inputTaxValuea}
-                      placeholder={tr.total_price + ' ₸'}
+                      placeholder={tr.total_price + ' (GB)'}
                       onChangeText={amount => setAmount(amount)}
                       placeholderColor={'#999999'}
+                      autoFocus={true}
                     />
                     <Text style={styles.instructionText}><Text style={styles.attentionText}>{tr.warning}</Text> {tr.instruction}</Text>
                     <View style={styles.choiceBtnCont}>
                       <TouchableOpacity style={styles.choiceBtnLefta} onPress={() => { getBonus() }}>
                         <Text style={styles.choiceBtnTexta}>{tr.pay}</Text>
                       </TouchableOpacity>
-                      <View style={styles.orPositionO}>
-                        <View style={styles.orPosition}>
-                          <View style={styles.choiceBtnOrCont}>
-                            <Text style={styles.choiceBtnOrText}>{tr.or}</Text>
-                          </View>
-                        </View>
-                      </View>
                       <TouchableOpacity style={styles.choiceBtnRighta} onPress={() => { addBonus() }}>
                         <Text style={[styles.choiceBtnTexta, styles.choiceBtnRightTexta]}>{tr.add_bonus}</Text>
                       </TouchableOpacity>
+                      <View style={styles.orPosition}>
+                        <View style={styles.choiceBtnOrCont}><Text style={styles.choiceBtnOrText}>{tr.or}</Text></View>
+                      </View>
                     </View>
                   </>
                   :
@@ -328,36 +268,36 @@ const HomeOne = ({ navigation, props }) => {
                       editable={false}
                       keyboardType={'numeric'}
                       style={styles.inputTaxValue}
-                      placeholder={tr.total_price + ' ₸'}
+                      placeholder={tr.total_price + '(GB)'}
                       placeholderColor={'#bbbbbb'}
-                      defaultValue={amount}
                     />
                     <Text style={styles.instructionText}><Text style={styles.attentionText}>{tr.warning}</Text> {tr.instruction}</Text>
                     <View style={styles.choiceBtnCont}>
                       <View style={styles.choiceBtnLeft}>
                         <Text style={styles.choiceBtnText}>{tr.pay}</Text>
                       </View>
+                      <View style={styles.choiceBtnRight}>
+                        <Text style={[styles.choiceBtnText]}>{tr.add_bonus}</Text>
+                      </View>
                       <View style={styles.orPosition}>
                         <View style={styles.choiceBtnOrCont}>
                           <Text style={styles.choiceBtnOrText}>{tr.or}</Text>
                         </View>
-                      </View>
-                      <View style={styles.choiceBtnRight}>
-                        <Text style={[styles.choiceBtnText]}>{tr.add_bonus}</Text>
                       </View>
                     </View>
                   </>
                 }
               </View>
             </View>
-          </View>
-          </View>}
-        </ScrollView>
-      </SafeAreaView>}
+          </ScrollView>
+          <View style={{height:keyboard.keyboardShown?-keyboard.keyboardHeight:0}}></View>
+        </>
+      }
       {isLoading && <View style={{ flex: 1, justifyContent: 'center', position: "absolute", width: "100%", height: "100%", backgroundColor: "#00000099" }}>
-          <ActivityIndicator size="large" color="#35a83a" />
-        </View>}
-    </Fragment>
+        <ActivityIndicator size="large" color="#35a83a" />
+      </View>}
+    </SafeAreaView>
+  </Fragment >
   );
 }
 const styles = StyleSheet.create({
@@ -366,6 +306,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   exitbtn: {
+
     width: 65,
     height: 65,
     justifyContent: 'center',
@@ -373,7 +314,7 @@ const styles = StyleSheet.create({
     marginVertical: 10
   },
   scrollView: {
-    height:"100%"
+    flexGrow: 1,
   },
   addOrderCostTexta: {
     fontFamily: 'SFUIDisplay-Bold',
@@ -393,21 +334,34 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center',
     paddingHorizontal: 20,
   },
+  body: {
+    
+    flexGrow: 1,
+    backgroundColor: '#eeeded',
+    alignItems: 'center',
+  },
+  userTitleText: {
+
+    marginTop: '20%',
+    fontFamily: 'SFUIDisplay-Light',
+    fontSize: 29,
+    color: '#2e2e2e'
+  },
   userNameCont: {
-    width: '80%',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    marginTop: '8%',
+    width: '78%',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#fff',
     borderRadius: 10,
     elevation: 10,
-
   },
   userNameText: {
     fontFamily: 'SFUIDisplay-Light',
     fontSize: 29,
     color: '#2e2e2e',
-
-    backgroundColor: '#fff',
-    marginTop:"40%", padding:10, width:"100%", textAlign:"center"
   },
   userMoneyText: {
     fontFamily: 'SFUIDisplay-Bold',
@@ -418,35 +372,33 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 0.95,
     alignItems: 'center',
-    flexDirection:"column",
-    justifyContent:"space-between",
-    paddingTop:30
   },
   userTitleText: {
+    marginTop: '20%',
     fontFamily: 'SFUIDisplay-Light',
     fontSize: 29,
-    color: '#2e2e2e',
-    marginTop:50
+    color: '#2e2e2e'
   },
 
   scanAgainButton: {
-    width: '80%',
+    position: 'absolute',
+    bottom: '15%',
+    width: '78%',
     height: 46,
     borderRadius: 23,
     backgroundColor: '#ffeb3b',
     elevation: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom:"25%"
   },
   scanAgainBtnText: {
     fontSize: 19,
     fontFamily: 'SFUIText-Regular',
   },
   bottomBlock: {
-    width: '80%',
+    width: '78%',
     alignItems: 'center',
-    paddingVertical:20
+    paddingVertical: 24,
   },
 
   addOrderCostText: {
@@ -525,7 +477,6 @@ const styles = StyleSheet.create({
     borderWidth: 5,
     borderColor: 'transparent',
     borderLeftWidth: 1,
-    zIndex:-1
   },
   choiceBtnText: {
     fontFamily: 'SFUIText-Regular',
@@ -549,13 +500,6 @@ const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex:1
-  },
-  orPositionO: {
-    width: 0,
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   choiceBtnOrCont: {
     width: 28,
@@ -573,5 +517,4 @@ const styles = StyleSheet.create({
     lineHeight: 28,
   },
 });
-
 export default HomeOne;

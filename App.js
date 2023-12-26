@@ -40,6 +40,7 @@ const RootNavigation = () => {
 
   return (
     <NavigationContainer>
+      <Toast />
       <StatusBar backgroundColor="black" barStyle="light-content" />
       {token === null ? <AuthStack /> : <MyStack />}
     </NavigationContainer>
@@ -87,7 +88,7 @@ const App = () => {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>
         <RootNavigation />
-        <Toast />
+        
       </Provider>
     </GestureHandlerRootView>
   );
