@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, {Fragment, useState, useEffect, useRef} from 'react';
 import {
   StyleSheet,
   ScrollView,
@@ -53,22 +53,14 @@ const HomeOne = ({ navigation, props }) => {
   const [amount, setAmount] = useState()
   const [w, setW] = useState("#f72")
   const [isLoading, setIsLoading] = useState(false)
+  const [active, setActive] = useState(false)
   const [scanning, setScanning] = useState(false)
   const windowWidth = Dimensions.get('window').width;
   const keyboard = useKeyboard()
   const [userQR, setQR] = useState()
   let deviceHeight = Dimensions.get('window').height
-  useEffect(() => {
-    if (hasPermission == false) {
-      requestPermission()
-      setIsLoading(false)
-    }
-    // setTimeout(() => {
-    //   if(w=="#f72"){
-    //     setW("#f73")
-    //   }else{setW("#f72")}
-    // }, 200)
-  }, [scanning])
+
+  console.log(active, isLoading, scanning)
 
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13'],
@@ -146,23 +138,66 @@ const HomeOne = ({ navigation, props }) => {
   }
 
   const iconSize = 1.5
-  
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        if (!hasPermission) {
+          console.log('request')
+          const result = await requestPermission()
+          console.log('result', result)
+          setTimeout(()=> {
+            setActive(true)
+          },1000)
+          setIsLoading(false)
+        }
+      } catch (e) {
+        console.error(e)
+      }
+    })()
+  }, [])
+
+  if (!hasPermission){
+    return <View style={{justifyContent: 'center', alignItems: 'center', backgroundColor: 'red'}}>
+      <Text>
+        no permission
+      </Text>
+    </View>
+  }
+
+  if (!codeScanner){
+    return <View style={{justifyContent: 'center', alignItems: 'center', backgroundColor: 'red'}}>
+      <Text>
+        no camera
+      </Text>
+    </View>
+  }
+
+
+  if (1){
+    return <Camera
+        style={{ width: "100%", height: "100%" , backgroundColor:w}}
+        device={device}
+        isActive={active} codeScanner={codeScanner}
+    >
+    </Camera>
+  }
+
+
   return (
     <Fragment>
     <StatusBar backgroundColor="#1e2e34" barStyle="light-content" />
     <SafeAreaView style={{ flexDirection:"column"}}>
-      {scanning ?
+      {scanning ? <View style={{justifyContent: 'center', alignItems: 'center', backgroundColor: 'red'}}><Text>Screen</Text></View>  :
         <>
           <View style={{ flexDirection: "column", alignItems: "center" }}>
             <Camera
               style={{ width: "100%", height: "100%" , backgroundColor:w}}
               device={device}
-
-              isActive={true}
-              {...props} codeScanner={codeScanner}
+              isActive={active} codeScanner={codeScanner}
             >
             </Camera>
-            <View style={{ position: "absolute", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "space-around" }}>
+            <View style={{ position: "absolute", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "space-around",}}>
               {/* Logo */}
               <View style={{ borderRadius: 10 * iconSize, borderWidth: 2 * iconSize, borderColor: "#fff", padding: 4 * iconSize, flexDirection: "column" }}>
                 <View style={{ borderColor: "#fff", borderBottomWidth: 2 * iconSize, flexDirection: "row", }}>
@@ -195,7 +230,7 @@ const HomeOne = ({ navigation, props }) => {
             </View>
           </View>
         </>
-        :
+        ? false:
         <>
           <View style={{ backgroundColor: "#1e2e34", flexDirection: "row", alignItems: "center", justifyContent: "space-between", }}>
             <View style={{ paddingLeft: 20, marginVertical: 10 }}>
@@ -335,7 +370,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   body: {
-    
+
     flexGrow: 1,
     backgroundColor: '#eeeded',
     alignItems: 'center',

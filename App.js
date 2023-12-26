@@ -55,19 +55,17 @@ const MyStack = () => {
       }}>
       <Stack.Screen
         getId={({ params }) => (params?.orderId)}
-        name="HomeScreen">
-        {props => <HomeOne {...props} />}
-      </Stack.Screen>
+        name="HomeScreen"
+        component={HomeOne}
+      />
       <Stack.Screen
         getId={({ params }) => (params?.orderId)}
-        name="HistoryScreen">
-        {props => <HistoryScreen {...props} />}
-      </Stack.Screen>
+        name="HistoryScreen"
+        component={HistoryScreen}
+      />
       <Stack.Screen
         getId={({ params }) => (params?.orderId)}
-        name="SettingsScreen">
-        {props => <SettingsScreen {...props} />}
-      </Stack.Screen>
+        name="SettingsScreen" component={SettingsScreen}/>
     </Stack.Navigator>
   );
 };
@@ -84,11 +82,12 @@ const AuthStack = () => {
 };
 
 const App = () => {
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>
         <RootNavigation />
-        
+
       </Provider>
     </GestureHandlerRootView>
   );
