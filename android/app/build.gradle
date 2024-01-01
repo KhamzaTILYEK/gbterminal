@@ -78,7 +78,7 @@ android {
         applicationId "halalgude.android.shop"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 34
+        versionCode 35
         versionName "Halal Bonus"
     }
     signingConfigs {
@@ -106,7 +106,8 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-
+    implementation 'com.google.mlkit:barcode-scanning:17.2.0'
+    implementation 'com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0'
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
     debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
         exclude group:'com.squareup.okhttp3', module:'okhttp'

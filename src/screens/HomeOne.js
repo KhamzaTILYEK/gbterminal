@@ -1,360 +1,269 @@
-import React, {Fragment, useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
   ScrollView,
   View,
   Text,
   TextInput,
-  TouchableOpacity, Dimensions, KeyboardAvoidingView,StatusBar
+  TouchableOpacity,
+  StatusBar,
 } from 'react-native';
-import { useKeyboard } from '@react-native-community/hooks'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useCodeScanner, useCameraPermission, Camera, useCameraDevice } from 'react-native-vision-camera';
-import { LogoQROff } from '../assets/svg_icons/qr_off_icon.js';
-import { LogoQROn } from '../assets/svg_icons/qr_on_icon.js';
-import { useSelector } from 'react-redux';
+import {useKeyboard} from '@react-native-community/hooks';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {LogoQROn} from '../assets/svg_icons/qr_on_icon.js';
+import {useSelector} from 'react-redux';
 import axios from 'axios';
-import { ActivityIndicator } from 'react-native-paper';
-import { HistoryIcon, SettingsIcon } from "../assets/svg_icons/icons.js"
+import {ActivityIndicator} from 'react-native-paper';
+import {HistoryIcon, SettingsIcon} from '../assets/svg_icons/icons.js';
 import Toast from 'react-native-toast-message';
+import {useRoute} from '@react-navigation/native';
+
 const tr = {
   signin: 'Вход',
   password: 'Пароль',
   login: 'Войти',
-  scan_qr_code: "Сканировать QR код",
-  scan: "Сканировать",
-  add_order_price: "Стоимость заказа",
-  pay: "Оплатить",
-  add_bonus: "Зачислить",
-  or: "или",
-  warning: "Внимание!",
-  instruction: "Вводите всю сумму заказа, Количество баллов расчитывается автоматически",
-  total_price: "Общий счет",
-  cancel: "Отмена",
-  place_qr_code: "Наведите телефон на QR-код",
-  place_qr_code2: "Сканирование выполняется автоматически",
-  customer: "Пользователь",
-  rescan: "Сканировать еще раз",
-  bonus_added: "Бонусы зачиcлены",
-  payed_with_bonus: "Оплачено бонусами",
-  main: "Основное",
-  lang: "Язык",
-  quit: "Выйти",
-  email: 'Электронная почта',
-  history: 'История'
-}
+  scan_qr_code: 'Сканировать QR код',
+  scan: 'Сканировать',
+  add_order_price: 'Стоимость заказа',
+  pay: 'Оплатить',
+  add_bonus: 'Зачислить',
+  or: 'или',
+  warning: 'Внимание!',
+  instruction:
+    'Вводите всю сумму заказа, Количество баллов расчитывается автоматически',
+  total_price: 'Общий счет',
+  cancel: 'Отмена',
+  place_qr_code: 'Наведите телефон на QR-код',
+  place_qr_code2: 'Сканирование выполняется автоматически',
+  customer: '',
+  rescan: 'Сканировать еще раз',
+  bonus_added: 'Бонусы зачиcлены',
+  payed_with_bonus: 'Оплачено бонусами',
+  main: 'Основное',
+  history: 'История',
+};
 
-const HomeOne = ({ navigation, props }) => {
-  const device = useCameraDevice('back')
-  const { hasPermission, requestPermission } = useCameraPermission()
+const HomeOne = ({navigation}) => {
+  const route = useRoute();
   const token = useSelector(state => state.Reducers.authToken);
-  const [userId, setUserId] = useState()
-  const [userName, setUserName] = useState()
-  const [amount, setAmount] = useState()
-  const [w, setW] = useState("#f72")
-  const [isLoading, setIsLoading] = useState(false)
-  const [active, setActive] = useState(false)
-  const [scanning, setScanning] = useState(false)
-  const windowWidth = Dimensions.get('window').width;
-  const keyboard = useKeyboard()
-  const [userQR, setQR] = useState()
-  let deviceHeight = Dimensions.get('window').height
-
-  console.log(active, isLoading, scanning)
-
-  const codeScanner = useCodeScanner({
-    codeTypes: ['qr', 'ean-13'],
-    onCodeScanned: (codes) => {
-      setQR(codes[0].value)
-      if(codes[0].value.slice(0, 1)=='{' && codes[0].value.slice(-1)=="}"){
-        if (JSON.parse(codes[0].value)?.name) {
-          setUserName(`${JSON.parse(codes[0].value).name} ${JSON.parse(codes[0].value).surname}`)
-          setUserId(JSON.parse(codes[0].value).id)
-          setScanning(false)
-        }
-      }else{
-            setIsLoading(true)
-            axios.get(`https://data.halalguide.me/api/user/${codes[0].value}`, {
-              headers: {
-                Authorization: token
-              }
-            })
-            .then(response => {
-              setUserName(response.data.name)
-              setUserId(response.data.id)
-              setIsLoading(false)
-              setScanning(false)
-            }).catch(error => {
-              setIsLoading(false)
-            })
-      }
-    }
-  })
+  const [userId, setUserId] = useState();
+  const [userName, setUserName] = useState('');
+  const [amount, setAmount] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const keyboard = useKeyboard();
 
   const addBonus = () => {
-    setIsLoading(true)
-    axios.post(`https://data.halalguide.me/api/bonus/points/`, { user: userId, amount: amount }, { headers: { Authorization: token } })
-      .then(response => {
-        Toast.show({
-          type: 'success',
-          text1: 'Бонусы Зачислены',
+    if (amount) {
+      setIsLoading(true);
+      axios
+        .post(
+          `https://data.halalguide.me/api/bonus/points/`,
+          {user: userId, amount: amount},
+          {headers: {Authorization: token}},
+        )
+        .then(response => {
+          Toast.show({
+            type: 'success',
+            text1: 'Бонусы Зачислены',
+          });
+          setIsLoading(false);
+          setUserName('');
+          setAmount(null);
+          navigation.navigate('MainScreen');
+        })
+        .catch(error => {
+          Toast.show({
+            type: 'error',
+            text1: 'Бонусы не Зачислены',
+          });
+          setIsLoading(false);
         });
-        setIsLoading(false)
-        setUserName()
-        setAmount()
-      }).catch(error => {
-        Toast.show({
-          type: 'error',
-          text1: 'Бонусы не Зачислены',
-        });
-        setUserName()
-        setIsLoading(false)
-        setAmount()
-      })
-  }
-  const getBonus = () => {
-    setIsLoading(true)
-    axios.post(`https://data.halalguide.me/api/bonus/points/debit/`, { user: userId, amount: amount }, { headers: { Authorization: token } })
-      .then(response => {
-        setIsLoading(false)
-        Toast.show({
-          type: 'success',
-          text1: 'Бонусы списаны',
-        });
-        setUserName()
-        setAmount()
-      }).catch(error => {
-        setIsLoading(false)
-        Toast.show({
-          type: 'error',
-          text1: 'Бонусы не списаны',
-        });
-        setUserName()
-        setAmount()
-      })
-  }
-  const quit = () => {
-    setScanning(false)
-  }
+    } else {
+      Toast.show({
+        type: 'info',
+        text1: 'Введите сумму',
+      });
+    }
+  };
 
-  const iconSize = 1.5
+  const getBonus = () => {
+    if (amount) {
+      setIsLoading(true);
+      axios
+        .post(
+          `https://data.halalguide.me/api/bonus/points/debit/`,
+          {user: userId, amount: amount},
+          {headers: {Authorization: token}},
+        )
+        .then(response => {
+          setIsLoading(false);
+          Toast.show({
+            type: 'success',
+            text1: 'Бонусы списаны',
+          });
+          setUserName('');
+          setAmount(null);
+          setIsLoading(false);
+          navigation.navigate('MainScreen');
+        })
+        .catch(error => {
+          setIsLoading(false);
+          Toast.show({
+            type: 'error',
+            text1: 'Бонусы не списаны',
+          });
+        });
+    } else {
+      Toast.show({
+        type: 'info',
+        text1: 'Введите сумму',
+      });
+    }
+  };
 
   useEffect(() => {
-    ;(async () => {
-      try {
-        if (!hasPermission) {
-          console.log('request')
-          const result = await requestPermission()
-          console.log('result', result)
-          setTimeout(()=> {
-            setActive(true)
-          },1000)
-          setIsLoading(false)
-        }
-      } catch (e) {
-        console.error(e)
-      }
-    })()
-  }, [])
-
-  if (!hasPermission){
-    return <View style={{justifyContent: 'center', alignItems: 'center', backgroundColor: 'red'}}>
-      <Text>
-        no permission
-      </Text>
-    </View>
-  }
-
-  if (!codeScanner){
-    return <View style={{justifyContent: 'center', alignItems: 'center', backgroundColor: 'red'}}>
-      <Text>
-        no camera
-      </Text>
-    </View>
-  }
-
-
-  if (1){
-    return <Camera
-        style={{ width: "100%", height: "100%" , backgroundColor:w}}
-        device={device}
-        isActive={active} codeScanner={codeScanner}
-    >
-    </Camera>
-  }
-
+    setUserId(route.params?.userId);
+    setUserName(route.params?.username);
+    if (!route.params?.userId) {
+      navigation.navigate('MainScreen');
+    }
+  }, []);
 
   return (
-    <Fragment>
-    <StatusBar backgroundColor="#1e2e34" barStyle="light-content" />
-    <SafeAreaView style={{ flexDirection:"column"}}>
-      {scanning ? <View style={{justifyContent: 'center', alignItems: 'center', backgroundColor: 'red'}}><Text>Screen</Text></View>  :
-        <>
-          <View style={{ flexDirection: "column", alignItems: "center" }}>
-            <Camera
-              style={{ width: "100%", height: "100%" , backgroundColor:w}}
-              device={device}
-              isActive={active} codeScanner={codeScanner}
-            >
-            </Camera>
-            <View style={{ position: "absolute", flexDirection: "column", alignItems: "center", height: "100%", justifyContent: "space-around",}}>
-              {/* Logo */}
-              <View style={{ borderRadius: 10 * iconSize, borderWidth: 2 * iconSize, borderColor: "#fff", padding: 4 * iconSize, flexDirection: "column" }}>
-                <View style={{ borderColor: "#fff", borderBottomWidth: 2 * iconSize, flexDirection: "row", }}>
-                  <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginBottom: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
-                  <View style={{ borderWidth: iconSize, borderColor: "#fff", marginHorizontal: 2 * iconSize }}></View>
-                  <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginBottom: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
-                </View>
-                <View style={{ flexDirection: "row", }}>
-                  <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginTop: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
-                  <View style={{ borderWidth: iconSize, borderColor: "#fff", marginHorizontal: 2 * iconSize }}></View>
-                  <View style={{ borderColor: "#fff", borderWidth: 2 * iconSize, marginTop: 3 * iconSize, borderRadius: 3 * iconSize, padding: 3 * iconSize }}></View>
-                </View>
-              </View>
-              {/* Text1 */}
-              <Text style={{ textAlign: "center", color: "#fff", fontSize: 26, fontWeight: 600, paddingHorizontal: 20 }}>
-                {tr.place_qr_code}
+    <SafeAreaView style={{flexDirection: 'column'}}>
+      <View
+        style={{
+          backgroundColor: '#1e2e34',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}>
+        <View style={{paddingLeft: 20, marginVertical: 10}}>
+          <TouchableOpacity>
+            <HistoryIcon
+              onPress={() => navigation.navigate('HistoryScreen')}
+              width={30}
+              height={30}
+              fill="#fff"
+            />
+          </TouchableOpacity>
+        </View>
+        <Text style={{color: '#FFF', fontWeight: 400, fontSize: 26}}>
+          HalalBonus
+        </Text>
+        <View style={{paddingRight: 20}}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('SettingsScreen')}>
+            <SettingsIcon width={30} height={30} fill="#fff" />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <ScrollView contentContainerStyle={[styles.scrollView]}>
+        <View
+          style={[
+            styles.body,
+            {
+              marginTop: -54,
+            },
+          ]}>
+          <View style={styles.logoCont}>
+            <LogoQROn
+              width={'100%'}
+              height={'100%'}
+              preserveAspectRatio="none"
+              style={{position: 'absolute'}}
+            />
+            <Text style={styles.userTitleText}>{tr.customer}</Text>
+            <View style={styles.userNameCont}>
+              <Text numberOfLines={2} style={styles.userNameText}>
+                {userName ? userName : null}
               </Text>
-              {/* Box */}
-              <View style={{ borderWidth: 2, borderColor: "#ffeb3b", borderRadius: 20, width: "100%", height: windowWidth - 30 }}></View>
-              {/* Text2 */}
-              <Text style={{ textAlign: "center", color: "#fff", fontSize: 18, fontWeight: 500 }}>
-                {tr.place_qr_code2}
-              </Text>
-              {/* Button  */}
-              <View style={{ height: 42, width: "100%" }}>
-                <TouchableOpacity onPress={() => quit()} style={{ width: "100%", borderRadius: 15, borderWidth: 2, borderColor: "#fff", flex: 1, alignItems: "center", padding: 5, backgroundColor: "#ffffff33" }}>
-                  <Text style={{ color: "#fff", fontWeight: 500, fontSize: 18, }}>{tr.cancel}</Text>
-                </TouchableOpacity>
-              </View>
             </View>
-          </View>
-        </>
-        ? false:
-        <>
-          <View style={{ backgroundColor: "#1e2e34", flexDirection: "row", alignItems: "center", justifyContent: "space-between", }}>
-            <View style={{ paddingLeft: 20, marginVertical: 10 }}>
-              <TouchableOpacity>
-                <HistoryIcon onPress={() => navigation.navigate('HistoryScreen')} width={30} height={30} fill="#fff" />
-              </TouchableOpacity>
-            </View>
-            <Text style={{ color: "#FFF", fontWeight: 400, fontSize: 26, }}>GreenBonus</Text>
-            <View style={{ paddingRight: 20 }}>
-              <TouchableOpacity onPress={() => navigation.navigate('SettingsScreen')}>
-                <SettingsIcon width={30} height={30} fill="#fff" />
-              </TouchableOpacity>
 
+            <TouchableOpacity
+              style={styles.scanAgainButton}
+              onPress={() => navigation.navigate('ScanScreen')}>
+              <Text style={styles.scanAgainBtnText}>{tr?.rescan}</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.bottomBlock}>
+            <Text style={styles.addOrderCostTexta}>{tr?.add_order_price}</Text>
+            <TextInput
+              keyboardType={'numeric'}
+              style={styles.inputTaxValuea}
+              placeholder={tr.total_price + ' (₸)'}
+              onChangeText={amount => setAmount(amount)}
+              placeholderColor={'#999999'}
+              autoFocus={true}
+            />
+            <Text style={styles.instructionText}>
+              <Text style={styles.attentionText}>{tr?.warning}</Text>
+              {tr?.instruction}
+            </Text>
+            <View style={styles.choiceBtnCont}>
+              <TouchableOpacity
+                style={styles.choiceBtnLefta}
+                onPress={() => {
+                  getBonus();
+                }}>
+                <Text style={styles.choiceBtnTexta}>{tr?.pay}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.choiceBtnRighta}
+                onPress={() => {
+                  addBonus();
+                }}>
+                <Text
+                  style={[styles.choiceBtnTexta, styles.choiceBtnRightTexta]}>
+                  {tr?.add_bonus}
+                </Text>
+              </TouchableOpacity>
+              <View style={styles.orPosition}>
+                <View style={styles.choiceBtnOrCont}>
+                  <Text style={styles.choiceBtnOrText}>{tr?.or}</Text>
+                </View>
+              </View>
             </View>
           </View>
-          <ScrollView
-            contentContainerStyle={[styles.scrollView]}>
-            <View style={[styles.body,{marginTop:keyboard.keyboardShown?-keyboard.keyboardHeight+54: -54,}]}>
-              <View style={styles.logoCont}>
-                {userName ?
-                  <>
-                    <LogoQROn width={'100%'} height={'100%'} preserveAspectRatio="none" style={{ position: 'absolute', top: 0 }} />
-                    <Text style={styles.userTitleText}>{tr.customer}</Text>
-                    <View style={styles.userNameCont}>
-                      <Text
-                        numberOfLines={2}
-                        style={styles.userNameText}>{userName}</Text>
-                    </View>
-                  </> :
-                  <>
-                    <LogoQROff width={'100%'} height={'100%'} preserveAspectRatio="none" style={{ position: 'absolute', top: 0 }} />
-                    <Text style={styles.userTitleText}>{tr.scan_qr_code}</Text>
-                  </>
-                }
-                <TouchableOpacity style={styles.scanAgainButton} onPress={() => setScanning(true)}>
-                  <Text style={styles.scanAgainBtnText}>
-                    {userName ? tr.rescan : tr.scan}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.bottomBlock}>
-                {userName ?
-                  <>
-                    <Text style={styles.addOrderCostTexta}>{tr.add_order_price}</Text>
-                    <TextInput
-                      keyboardType={'numeric'}
-                      style={styles.inputTaxValuea}
-                      placeholder={tr.total_price + ' (GB)'}
-                      onChangeText={amount => setAmount(amount)}
-                      placeholderColor={'#999999'}
-                      autoFocus={true}
-                    />
-                    <Text style={styles.instructionText}><Text style={styles.attentionText}>{tr.warning}</Text> {tr.instruction}</Text>
-                    <View style={styles.choiceBtnCont}>
-                      <TouchableOpacity style={styles.choiceBtnLefta} onPress={() => { getBonus() }}>
-                        <Text style={styles.choiceBtnTexta}>{tr.pay}</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity style={styles.choiceBtnRighta} onPress={() => { addBonus() }}>
-                        <Text style={[styles.choiceBtnTexta, styles.choiceBtnRightTexta]}>{tr.add_bonus}</Text>
-                      </TouchableOpacity>
-                      <View style={styles.orPosition}>
-                        <View style={styles.choiceBtnOrCont}><Text style={styles.choiceBtnOrText}>{tr.or}</Text></View>
-                      </View>
-                    </View>
-                  </>
-                  :
-                  <>
-                    <Text style={styles.addOrderCostText}>{tr.add_order_price}</Text>
-                    <TextInput
-                      editable={false}
-                      keyboardType={'numeric'}
-                      style={styles.inputTaxValue}
-                      placeholder={tr.total_price + '(GB)'}
-                      placeholderColor={'#bbbbbb'}
-                    />
-                    <Text style={styles.instructionText}><Text style={styles.attentionText}>{tr.warning}</Text> {tr.instruction}</Text>
-                    <View style={styles.choiceBtnCont}>
-                      <View style={styles.choiceBtnLeft}>
-                        <Text style={styles.choiceBtnText}>{tr.pay}</Text>
-                      </View>
-                      <View style={styles.choiceBtnRight}>
-                        <Text style={[styles.choiceBtnText]}>{tr.add_bonus}</Text>
-                      </View>
-                      <View style={styles.orPosition}>
-                        <View style={styles.choiceBtnOrCont}>
-                          <Text style={styles.choiceBtnOrText}>{tr.or}</Text>
-                        </View>
-                      </View>
-                    </View>
-                  </>
-                }
-              </View>
-            </View>
-          </ScrollView>
-          <View style={{height:keyboard.keyboardShown?-keyboard.keyboardHeight:0}}></View>
-        </>
-      }
-      {isLoading && <View style={{ flex: 1, justifyContent: 'center', position: "absolute", width: "100%", height: "100%", backgroundColor: "#00000099" }}>
-        <ActivityIndicator size="large" color="#35a83a" />
-      </View>}
+        </View>
+      </ScrollView>
+      {isLoading && (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            backgroundColor: '#00000099',
+          }}>
+          <ActivityIndicator size="large" color="#35a83a" />
+        </View>
+      )}
     </SafeAreaView>
-  </Fragment >
   );
-}
+};
+export default HomeOne;
 const styles = StyleSheet.create({
   exitImg: {
     height: 20,
     resizeMode: 'contain',
   },
   exitbtn: {
-
     width: 65,
     height: 65,
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 10
+    marginVertical: 10,
   },
   scrollView: {
     flexGrow: 1,
+    height: '100%',
   },
   addOrderCostTexta: {
-    fontFamily: 'SFUIDisplay-Bold',
+    // fontFamily: 'SFUIDisplay-Bold',
     fontSize: 18,
-    color: '#2e2e2e'
+    color: '#2e2e2e',
   },
   inputTaxValuea: {
     marginTop: 10,
@@ -364,23 +273,21 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e6e5e5',
     backgroundColor: '#fff',
-    fontFamily: 'SFUIText-Regular',
+    // fontFamily: 'SFUIText-Regular',
     fontSize: 18,
     textAlignVertical: 'center',
     paddingHorizontal: 20,
   },
   body: {
-
     flexGrow: 1,
     backgroundColor: '#eeeded',
     alignItems: 'center',
   },
   userTitleText: {
-
     marginTop: '20%',
-    fontFamily: 'SFUIDisplay-Light',
+    // fontFamily: 'SFUIDisplay-Light',
     fontSize: 29,
-    color: '#2e2e2e'
+    color: '#2e2e2e',
   },
   userNameCont: {
     paddingHorizontal: 10,
@@ -394,14 +301,14 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   userNameText: {
-    fontFamily: 'SFUIDisplay-Light',
+    // fontFamily: 'SFUIDisplay-Light',
     fontSize: 29,
     color: '#2e2e2e',
   },
   userMoneyText: {
-    fontFamily: 'SFUIDisplay-Bold',
+    // fontFamily: 'SFUIDisplay-Bold',
     fontSize: 29,
-    color: '#35a83a'
+    color: '#35a83a',
   },
   logoCont: {
     width: '100%',
@@ -410,9 +317,9 @@ const styles = StyleSheet.create({
   },
   userTitleText: {
     marginTop: '20%',
-    fontFamily: 'SFUIDisplay-Light',
+    // fontFamily: 'SFUIDisplay-Light',
     fontSize: 29,
-    color: '#2e2e2e'
+    color: '#2e2e2e',
   },
 
   scanAgainButton: {
@@ -428,7 +335,7 @@ const styles = StyleSheet.create({
   },
   scanAgainBtnText: {
     fontSize: 19,
-    fontFamily: 'SFUIText-Regular',
+    // fontFamily: 'SFUIText-Regular',
   },
   bottomBlock: {
     width: '78%',
@@ -437,9 +344,9 @@ const styles = StyleSheet.create({
   },
 
   addOrderCostText: {
-    fontFamily: 'SFUIDisplay-Bold',
+    // fontFamily: 'SFUIDisplay-Bold',
     fontSize: 18,
-    color: '#bbbbbb'
+    color: '#bbbbbb',
   },
   inputTaxValue: {
     marginTop: 10,
@@ -449,7 +356,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#dcdcdc',
     backgroundColor: '#eeeded',
-    fontFamily: 'SFUIText-Regular',
+    // fontFamily: 'SFUIText-Regular',
     fontSize: 18,
     textAlignVertical: 'center',
     paddingHorizontal: 20,
@@ -457,12 +364,12 @@ const styles = StyleSheet.create({
   instructionText: {
     marginTop: 15,
     fontSize: 14,
-    fontFamily: 'SFUIDisplay-Regular',
+    // fontFamily: 'SFUIDisplay-Regular',
     color: '#bbbbbb',
     textAlign: 'center',
   },
   attentionText: {
-    fontFamily: 'SFUIDisplay-Bold'
+    // fontFamily: 'SFUIDisplay-Bold'
   },
   choiceBtnCont: {
     marginTop: 20,
@@ -495,7 +402,7 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
   },
   choiceBtnTexta: {
-    fontFamily: 'SFUIText-Regular',
+    // fontFamily: 'SFUIText-Regular',
     fontSize: 18,
     color: '#fff',
   },
@@ -514,7 +421,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 1,
   },
   choiceBtnText: {
-    fontFamily: 'SFUIText-Regular',
+    // fontFamily: 'SFUIText-Regular',
     fontSize: 18,
     color: '#fff',
   },
@@ -546,10 +453,9 @@ const styles = StyleSheet.create({
   },
   choiceBtnOrText: {
     paddingHorizontal: 0,
-    fontFamily: 'SFUIText-Regular',
+    // fontFamily: 'SFUIText-Regular',
     fontSize: 12,
     color: '#999999',
     lineHeight: 28,
   },
 });
-export default HomeOne;
