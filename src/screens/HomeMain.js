@@ -6,12 +6,11 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  StatusBar,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {LogoQROff} from '../assets/svg_icons/qr_off_icon.js';
-import {HistoryIcon, SettingsIcon} from '../assets/svg_icons/icons.js';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LogoQROff } from '../assets/svg_icons/qr_off_icon.js';
+import { HistoryIcon, SettingsIcon } from '../assets/svg_icons/icons.js';
+import { useCameraPermission } from 'react-native-vision-camera';
 const tr = {
   signin: 'Вход',
   password: 'Пароль',
@@ -37,10 +36,16 @@ const tr = {
   history: 'История',
 };
 
-const HomeMain = ({navigation}) => {
+const HomeMain = ({ navigation }) => {
+  const { hasPermission, requestPermission } = useCameraPermission();
+  React.useEffect(() => {
+    if (!hasPermission) {
+      requestPermission();
+    }
+  }, []);
   return (
     <>
-      <SafeAreaView style={{flexDirection: 'column'}}>
+      <SafeAreaView style={{ flexDirection: 'column' }}>
         <View
           style={{
             backgroundColor: '#1e2e34',
@@ -48,7 +53,7 @@ const HomeMain = ({navigation}) => {
             alignItems: 'center',
             justifyContent: 'space-between',
           }}>
-          <View style={{paddingLeft: 20, marginVertical: 10}}>
+          <View style={{ paddingLeft: 20, marginVertical: 10 }}>
             <TouchableOpacity>
               <HistoryIcon
                 onPress={() => navigation.navigate('HistoryScreen')}
@@ -58,10 +63,10 @@ const HomeMain = ({navigation}) => {
               />
             </TouchableOpacity>
           </View>
-          <Text style={{color: '#FFF', fontWeight: 400, fontSize: 26}}>
+          <Text style={{ color: '#FFF', fontWeight: 400, fontSize: 26 }}>
             HalalBonus
           </Text>
-          <View style={{paddingRight: 20}}>
+          <View style={{ paddingRight: 20 }}>
             <TouchableOpacity
               onPress={() => navigation.navigate('SettingsScreen')}>
               <SettingsIcon width={30} height={30} fill="#fff" />
@@ -69,13 +74,13 @@ const HomeMain = ({navigation}) => {
           </View>
         </View>
         <ScrollView contentContainerStyle={[styles.scrollView]}>
-          <View style={[styles.body, {marginTop: -54}]}>
+          <View style={[styles.body, { marginTop: -54 }]}>
             <View style={styles.logoCont}>
               <LogoQROff
                 width={'100%'}
                 height={'100%'}
                 preserveAspectRatio="none"
-                style={{position: 'absolute'}}
+                style={{ position: 'absolute' }}
               />
               <Text style={styles.userTitleText}>{tr?.scan_qr_code}</Text>
               <TouchableOpacity

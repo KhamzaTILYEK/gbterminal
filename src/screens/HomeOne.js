@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   ScrollView,
@@ -8,15 +8,15 @@ import {
   TouchableOpacity,
   StatusBar,
 } from 'react-native';
-import {useKeyboard} from '@react-native-community/hooks';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {LogoQROn} from '../assets/svg_icons/qr_on_icon.js';
-import {useSelector} from 'react-redux';
+import { useKeyboard } from '@react-native-community/hooks';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LogoQROn } from '../assets/svg_icons/qr_on_icon.js';
+import { useSelector } from 'react-redux';
 import axios from 'axios';
-import {ActivityIndicator} from 'react-native-paper';
-import {HistoryIcon, SettingsIcon} from '../assets/svg_icons/icons.js';
+import { ActivityIndicator } from 'react-native-paper';
+import { HistoryIcon, SettingsIcon } from '../assets/svg_icons/icons.js';
 import Toast from 'react-native-toast-message';
-import {useRoute} from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 
 const tr = {
   signin: 'Вход',
@@ -43,7 +43,7 @@ const tr = {
   history: 'История',
 };
 
-const HomeOne = ({navigation}) => {
+const HomeOne = ({ navigation }) => {
   const route = useRoute();
   const token = useSelector(state => state.Reducers.authToken);
   const [userId, setUserId] = useState();
@@ -58,8 +58,8 @@ const HomeOne = ({navigation}) => {
       axios
         .post(
           `https://data.halalguide.me/api/bonus/points/`,
-          {user: userId, amount: amount},
-          {headers: {Authorization: token}},
+          { user: userId, amount: amount },
+          { headers: { Authorization: token } },
         )
         .then(response => {
           Toast.show({
@@ -92,8 +92,8 @@ const HomeOne = ({navigation}) => {
       axios
         .post(
           `https://data.halalguide.me/api/bonus/points/debit/`,
-          {user: userId, amount: amount},
-          {headers: {Authorization: token}},
+          { user: userId, amount: amount },
+          { headers: { Authorization: token } },
         )
         .then(response => {
           setIsLoading(false);
@@ -124,13 +124,10 @@ const HomeOne = ({navigation}) => {
   useEffect(() => {
     setUserId(route.params?.userId);
     setUserName(route.params?.username);
-    if (!route.params?.userId) {
-      navigation.navigate('MainScreen');
-    }
-  }, []);
+  }, [route.params?.date]);
 
   return (
-    <SafeAreaView style={{flexDirection: 'column'}}>
+    <SafeAreaView style={{ flexDirection: 'column' }}>
       <View
         style={{
           backgroundColor: '#1e2e34',
@@ -138,7 +135,7 @@ const HomeOne = ({navigation}) => {
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
-        <View style={{paddingLeft: 20, marginVertical: 10}}>
+        <View style={{ paddingLeft: 20, marginVertical: 10 }}>
           <TouchableOpacity>
             <HistoryIcon
               onPress={() => navigation.navigate('HistoryScreen')}
@@ -148,10 +145,10 @@ const HomeOne = ({navigation}) => {
             />
           </TouchableOpacity>
         </View>
-        <Text style={{color: '#FFF', fontWeight: 400, fontSize: 26}}>
+        <Text style={{ color: '#FFF', fontWeight: 400, fontSize: 26 }}>
           HalalBonus
         </Text>
-        <View style={{paddingRight: 20}}>
+        <View style={{ paddingRight: 20 }}>
           <TouchableOpacity
             onPress={() => navigation.navigate('SettingsScreen')}>
             <SettingsIcon width={30} height={30} fill="#fff" />
@@ -163,7 +160,7 @@ const HomeOne = ({navigation}) => {
           style={[
             styles.body,
             {
-              marginTop: -54,
+              marginTop: keyboard.keyboardShown ? -keyboard.keyboardHeight + 54 : -54,
             },
           ]}>
           <View style={styles.logoCont}>
@@ -171,7 +168,7 @@ const HomeOne = ({navigation}) => {
               width={'100%'}
               height={'100%'}
               preserveAspectRatio="none"
-              style={{position: 'absolute'}}
+              style={{ position: 'absolute' }}
             />
             <Text style={styles.userTitleText}>{tr.customer}</Text>
             <View style={styles.userNameCont}>
